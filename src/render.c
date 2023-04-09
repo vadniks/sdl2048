@@ -34,17 +34,15 @@ void drawField(SDL_Renderer* renderer) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderSetScale(renderer, (float) THICKNESS, (float) THICKNESS);
 
-    const int end = (signed) (ROWS * gTileSize / THICKNESS + THICKNESS / 2);
-    for (unsigned i = 0; i < ROWS + 1; i++) {
-        int each = (signed) (i * gTileSize / THICKNESS + THICKNESS / 2);
-        SDL_RenderDrawLine(renderer, each, THICKNESS / 2, each, end);
-        SDL_RenderDrawLine(renderer, THICKNESS / 2, each, end, each);
-    }
+    const int
+        start = (signed) THICKNESS / 2,
+        end = (signed) (ROWS * gTileSize / THICKNESS + start);
 
-//    const int end = (signed) (gHeight / THICKNESS), start = 0/*(signed) THICKNESS / 2*/;
-//    for (unsigned i = start; i < gWidth / THICKNESS; i += gTileSize + THICKNESS)
-//        SDL_RenderDrawLine(renderer, (signed) i, start, (signed) i, end - start),
-//        SDL_RenderDrawLine(renderer, start, (signed) i, end - start, (signed) i);
+    for (unsigned i = 0; i < ROWS + 1; i++) {
+        int each = (signed) (i * gTileSize / THICKNESS + start);
+        SDL_RenderDrawLine(renderer, each, start, each, end);
+        SDL_RenderDrawLine(renderer, start, each, end, each);
+    }
 }
 
 void doRender(SDL_Renderer* renderer) {
