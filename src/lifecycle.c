@@ -1,12 +1,13 @@
 
 #include <sdl/SDL.h>
-#include "gameLifecycle.h"
+#include "lifecycle.h"
+#include "render.h"
 
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 bool gRunning = false;
 
-bool init() {
+bool gameInit() {
     if (SDL_Init(SDL_INIT_VIDEO))
         return false;
 
@@ -23,11 +24,13 @@ bool init() {
     gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
     if (!gRenderer) return false;
 
+    initRenderer(gRenderer);
+
     gRunning = true;
     return true;
 }
 
-void handleEvents() {
+void gameHandleEvents() {
     SDL_Event event;
     if (!SDL_PollEvent(&event)) return;
 
@@ -39,31 +42,27 @@ void handleEvents() {
     }
 }
 
-void update() {
+void gameUpdate() {
 
 }
 
-void render() {
-    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
-    SDL_RenderClear(gRenderer);
-    SDL_RenderPresent(gRenderer);
-}
+void gameRender() { doRender(gRenderer); }
 
-void clean() {
+void gameClean() {
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
     SDL_Quit();
 }
 
-bool loop() {
-    if (!init()) return false;
+bool gameLoop() {
+    if (!gameInit()) return false;
 
     while (gRunning) {
-        handleEvents();
-        update();
-        render();
+        gameHandleEvents();
+        gameUpdate();
+        gameRender();
     }
 
-    clean();
+    gameClean();
     return true;
 }
