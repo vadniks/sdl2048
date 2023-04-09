@@ -2,9 +2,11 @@
 #include "logic.h"
 
 bool* gIsRunning = NULL;
+unsigned* gRendererFieldItems = NULL;
 
-void logicInit(bool* gameRunningFlag) {
+void logicInit(bool* gameRunningFlag, unsigned* rendererFieldItems) {
     gIsRunning = gameRunningFlag;
+    gRendererFieldItems = rendererFieldItems;
 }
 
 void logicHandleEvent(SDL_Event* event) {
@@ -12,8 +14,10 @@ void logicHandleEvent(SDL_Event* event) {
         case SDL_QUIT:
             *gIsRunning = false;
             break;
-        default:
+        case SDL_KEYDOWN:
+            SDL_Log("%s\n", SDL_GetKeyName(event->key.keysym.sym));
             break;
+        default: break;
     }
 }
 

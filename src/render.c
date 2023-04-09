@@ -34,6 +34,8 @@ void rendererInit(SDL_Renderer* renderer) {
     gTextColor->a = 255;
 }
 
+unsigned* rendererFieldItems() { return gFieldItems; }
+
 void drawWindowFrame() {
     SDL_Rect rect = (SDL_Rect) {
         0, 0,

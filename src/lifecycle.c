@@ -12,7 +12,7 @@ SDL_Renderer* gSdlRenderer = NULL;
 bool gRunning = false;
 
 bool gameInit() {
-    if (SDL_Init(SDL_INIT_VIDEO))
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
         return false;
 
     gWindow = SDL_CreateWindow(
@@ -29,7 +29,7 @@ bool gameInit() {
     if (!gSdlRenderer) return false;
 
     rendererInit(gSdlRenderer);
-    logicInit(&gRunning);
+    logicInit(&gRunning, rendererFieldItems());
 
     gRunning = true;
     return true;
@@ -42,7 +42,7 @@ void gameHandleEvents() {
 }
 
 void gameUpdate() {
-    // TODO: make fixed update (continuous timer task with fixed delay)
+    // TODO: make fixed update (continuous timer task with fixed delay) or remove this at all
 }
 
 void gameRender() { rendererDraw(); }
