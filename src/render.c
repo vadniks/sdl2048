@@ -25,7 +25,7 @@ void rendererInit(SDL_Renderer* renderer) {
     gFieldStart = (signed) THICKNESS / 2;
     gFieldEnd = (signed) (ROWS * gTileSize / THICKNESS + gFieldStart);
 
-    gFieldItems = SDL_malloc(sizeof(unsigned) * ROWS * COLUMNS);
+    gFieldItems = SDL_calloc(ROWS * COLUMNS, sizeof(unsigned));
 
     TTF_Init();
     gFont = TTF_OpenFont(FONT_PATH, 100);
@@ -64,6 +64,9 @@ void drawNum(SDL_Rect* rect, int num) {
     SDL_free(text);
 }
 
+int calcFieldNumCoord(unsigned logicalCoord)
+{ return (signed) ((logicalCoord * gTileSize / THICKNESS + gFieldStart) * THICKNESS + THICKNESS); }
+
 void drawField() {
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderSetScale(gRenderer, (float) THICKNESS, (float) THICKNESS);
@@ -78,13 +81,12 @@ void drawField() {
     SDL_Rect rect = (SDL_Rect) { 0, 0, numWidth, numHeight };
     SDL_RenderSetScale(gRenderer, 1, 1);
 
-    for (unsigned row = 0, column, test = 0; row < ROWS; row++) {
-        for (column = 0; column < COLUMNS; column++, test++) {
-            // row * columns + column // TODO: too many arithmetic
-            rect.x = (signed) ((row * gTileSize / THICKNESS + gFieldStart) * THICKNESS + THICKNESS * 2);
-            rect.y = (signed) ((column * gTileSize / THICKNESS + gFieldStart) * THICKNESS + THICKNESS);
+    for (unsigned row = 0, column; row < ROWS; row++) {
+        for (column = 0; column < COLUMNS; column++) {
+            rect.x = calcFieldNumCoord(row) + (signed) THICKNESS;
+            rect.y = calcFieldNumCoord(column);
 
-            drawNum(&rect, 16384); // TODO: remove 'test'
+            drawNum(&rect, (signed) gFieldItems[row * COLUMNS + column]);
         }
     }
 }
