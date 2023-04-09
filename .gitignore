@@ -1,0 +1,5 @@
+!.gitignore
+/.idea
+/cmake-build-debug
+/libs/*/bin/*
+/libs/*/include/*
