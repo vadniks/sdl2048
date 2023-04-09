@@ -15,7 +15,7 @@ void initRenderer(SDL_Renderer* renderer) {
 
     SDL_GetRendererOutputSize(renderer, (signed*) &gWidth, (signed*) &gHeight);
     assert(gWidth == gHeight && ROWS == COLUMNS);
-    gTileSize = gWidth / ROWS;
+    gTileSize = gWidth / ROWS / THICKNESS;
 }
 
 void drawWindowFrame(SDL_Renderer* renderer) {
@@ -30,11 +30,22 @@ void drawWindowFrame(SDL_Renderer* renderer) {
     SDL_RenderDrawRect(renderer, &rect);
 }
 
+void drawField(SDL_Renderer* renderer) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderSetScale(renderer, (float) THICKNESS, (float) THICKNESS);
+
+    const int end = (signed) (gHeight / THICKNESS);
+    for (unsigned i = 0; i < gWidth / THICKNESS - THICKNESS; i += gTileSize)
+        SDL_RenderDrawLine(renderer, (signed) i, 0, (signed) i, end),
+        SDL_RenderDrawLine(renderer, 0, (signed) i, end, (signed) i); //TODO
+}
+
 void doRender(SDL_Renderer* renderer) {
     setDrawColorToDefault(renderer);
     SDL_RenderClear(renderer);
 
-    drawWindowFrame(renderer);
+//    drawWindowFrame(renderer);
+    drawField(renderer);
 
     SDL_RenderPresent(renderer);
 }
