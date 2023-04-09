@@ -1,7 +1,6 @@
 
 #include <sdl_ttf/SDL_ttf.h>
 #include <assert.h>
-#include <string.h>
 #include "render.h"
 
 const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, FIELD_ITEMS = ROWS * COLUMNS, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048;
@@ -110,10 +109,11 @@ void drawInfo() {
         120, 20
     };
 
+    const unsigned scoreMsgLength = 15, maxLength = scoreMsgLength + MAX_NUM_LENGTH;
     char* score = numToText((signed) gScore);
-    char* buffer = SDL_calloc(sizeof(char), 15 + MAX_NUM_LENGTH);
-    strcat(buffer, "Current score: ");
-    strcat(buffer, score);
+    char* buffer = SDL_calloc(sizeof(char), scoreMsgLength + MAX_NUM_LENGTH);
+    SDL_strlcat(buffer, "Current score: ", maxLength);
+    SDL_strlcat(buffer, score, maxLength);
 
     SDL_Texture* texture = makeTextTexture(buffer);
     SDL_RenderSetScale(gRenderer, 1, 1);
