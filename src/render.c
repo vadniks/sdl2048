@@ -24,7 +24,7 @@ void drawWindowFrame(SDL_Renderer* renderer) {
     rect.x = 0;
     rect.y = 0;
     rect.w = (signed) (gWidth / THICKNESS);
-    rect.h = (signed) (gWidth / THICKNESS);
+    rect.h = (signed) (gHeight / THICKNESS);
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderSetScale(renderer, (float) THICKNESS, (float) THICKNESS);
@@ -37,14 +37,17 @@ void drawField(SDL_Renderer* renderer) {
 
     const int
         start = (signed) THICKNESS / 2,
-        end = (signed) (ROWS * gTileSize / THICKNESS + start),
-        margin = (signed) (gHeight / THICKNESS / 2 - gFieldSize / THICKNESS / 2);
+        end = (signed) (ROWS * gTileSize / THICKNESS + start);
 
     for (unsigned i = 0; i < ROWS + 1; i++) {
         int each = (signed) (i * gTileSize / THICKNESS + start);
-        SDL_RenderDrawLine(renderer, each, start + margin, each, end + margin);
-        SDL_RenderDrawLine(renderer, start, each + margin, end, each + margin);
+        SDL_RenderDrawLine(renderer, each, start, each, end);
+        SDL_RenderDrawLine(renderer, start, each, end, each);
     }
+}
+
+void drawInfo(SDL_Renderer* renderer) {
+    // TODO
 }
 
 void doRender(SDL_Renderer* renderer) {
@@ -53,6 +56,7 @@ void doRender(SDL_Renderer* renderer) {
 
     drawWindowFrame(renderer);
     drawField(renderer);
+    drawInfo(renderer);
 
     SDL_RenderPresent(renderer);
 }
