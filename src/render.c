@@ -28,7 +28,7 @@ void rendererInit(SDL_Renderer* renderer) {
     gFieldItems = SDL_malloc(sizeof(unsigned) * ROWS * COLUMNS);
 
     TTF_Init();
-    gFont = TTF_OpenFont(FONT_PATH, 14);
+    gFont = TTF_OpenFont(FONT_PATH, 100);
 
     gTextColor = SDL_calloc(1, sizeof *gTextColor);
     gTextColor->a = 255;
