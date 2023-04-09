@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "render.h"
 
-const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, FIELD_ITEMS = ROWS * COLUMNS, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048;
+const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048;
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
 
 unsigned* gFieldItems = NULL;
@@ -99,7 +99,6 @@ void drawField() {
         for (column = 0; column < COLUMNS; column++) {
             rect.x = calcFieldNumCoord(row) + (signed) THICKNESS;
             rect.y = calcFieldNumCoord(column);
-
             drawNum(&rect, (signed) gFieldItems[row * COLUMNS + column]);
         }
     }
