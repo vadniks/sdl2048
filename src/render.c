@@ -3,27 +3,29 @@
 #include <assert.h>
 #include "render.h"
 
-const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4;
+const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, FIELD_ITEMS = ROWS * COLUMNS;
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
 
-unsigned* gField = NULL;
+unsigned* gFieldItems = NULL;
 unsigned gWidth = 0, gHeight = 0, gFieldSize = 0, gTileSize = 0, gFieldStart = 0, gFieldEnd = 0;
 TTF_Font* gFont = NULL;
 SDL_Color* gTextColor = NULL;
+SDL_Renderer* gRenderer = NULL;
 
-void setDrawColorToDefault(SDL_Renderer* renderer)
-{ SDL_SetRenderDrawColor(renderer, 49, 54, 59, 255); }
+void setDrawColorToDefault()
+{ SDL_SetRenderDrawColor(gRenderer, 49, 54, 59, 255); }
 
 void rendererInit(SDL_Renderer* renderer) {
     assert(ROWS == COLUMNS);
-    SDL_GetRendererOutputSize(renderer, (signed*) &gWidth, (signed*) &gHeight);
+    gRenderer = renderer;
+    SDL_GetRendererOutputSize(gRenderer, (signed*) &gWidth, (signed*) &gHeight);
 
     gFieldSize = gWidth / 2;
     gTileSize = (gFieldSize - (ROWS + 1) * THICKNESS) / ROWS;
     gFieldStart = (signed) THICKNESS / 2;
     gFieldEnd = (signed) (ROWS * gTileSize / THICKNESS + gFieldStart);
 
-    gField = SDL_malloc(sizeof(unsigned) * ROWS * COLUMNS);
+    gFieldItems = SDL_malloc(sizeof(unsigned) * ROWS * COLUMNS);
 
     TTF_Init();
     gFont = TTF_OpenFont(FONT_PATH, 14);
@@ -32,58 +34,67 @@ void rendererInit(SDL_Renderer* renderer) {
     gTextColor->a = 255;
 }
 
-void drawWindowFrame(SDL_Renderer* renderer) {
+void drawWindowFrame() {
     SDL_Rect rect = (SDL_Rect) {
         0, 0,
         (signed) (gWidth / THICKNESS),
         (signed) (gHeight / THICKNESS)
     };
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderSetScale(renderer, (float) THICKNESS, (float) THICKNESS);
-    SDL_RenderDrawRect(renderer, &rect);
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+    SDL_RenderSetScale(gRenderer, (float) THICKNESS, (float) THICKNESS);
+    SDL_RenderDrawRect(gRenderer, &rect);
 }
 
-void drawField(SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderSetScale(renderer, (float) THICKNESS, (float) THICKNESS);
+void drawField() {
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+    SDL_RenderSetScale(gRenderer, (float) THICKNESS, (float) THICKNESS);
 
     for (unsigned i = 0; i < ROWS + 1; i++) {
         const int each = (signed) (i * gTileSize / THICKNESS + gFieldStart);
-        SDL_RenderDrawLine(renderer, each, (signed) gFieldStart, each, (signed) gFieldEnd);
-        SDL_RenderDrawLine(renderer, (signed) gFieldStart, each, (signed) gFieldEnd, each);
+        SDL_RenderDrawLine(gRenderer, each, (signed) gFieldStart, each, (signed) gFieldEnd);
+        SDL_RenderDrawLine(gRenderer, (signed) gFieldStart, each, (signed) gFieldEnd, each);
     }
+
+
+//    for (unsigned i = 0; i < FIELD_ITEMS; i++) {
+//
+//    }
 }
 
-void drawInfo(SDL_Renderer* renderer) {
-    SDL_Surface* surface = TTF_RenderText_Solid(gFont, "Current score: ", *gTextColor); // TODO: show score here
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+//SDL_Texture* makeText(const char* text) {
+//
+//}
 
-    SDL_RenderSetScale(renderer, 1, 1);
+void drawInfo() {
+    SDL_Surface* surface = TTF_RenderText_Solid(gFont, "Current score: ", *gTextColor); // TODO: show score here
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
+
+    SDL_RenderSetScale(gRenderer, 1, 1);
     SDL_Rect rect = (SDL_Rect) {
         (signed) (gFieldSize + THICKNESS),
         (signed) THICKNESS,
         120, 20
     };
-    SDL_RenderCopy(renderer, texture, NULL, &rect);
+    SDL_RenderCopy(gRenderer, texture, NULL, &rect);
 
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 }
 
-void rendererDraw(SDL_Renderer* renderer) {
-    setDrawColorToDefault(renderer);
-    SDL_RenderClear(renderer);
+void rendererDraw() {
+    setDrawColorToDefault();
+    SDL_RenderClear(gRenderer);
 
-    drawWindowFrame(renderer);
-    drawField(renderer);
-    drawInfo(renderer);
+    drawWindowFrame();
+    drawField();
+    drawInfo();
 
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(gRenderer);
 }
 
 void rendererClean() {
-    SDL_free(gField);
+    SDL_free(gFieldItems);
     TTF_CloseFont(gFont);
     SDL_free(gTextColor);
     TTF_Quit();

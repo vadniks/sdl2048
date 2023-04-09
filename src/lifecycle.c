@@ -7,7 +7,7 @@ const unsigned WIDTH = 640;
 const unsigned HEIGHT = WIDTH / 2;
 
 SDL_Window* gWindow = NULL;
-SDL_Renderer* gRenderer = NULL;
+SDL_Renderer* gSdlRenderer = NULL;
 bool gRunning = false;
 
 bool gameInit() {
@@ -24,10 +24,10 @@ bool gameInit() {
     );
     if (!gWindow) return false;
 
-    gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
-    if (!gRenderer) return false;
+    gSdlRenderer = SDL_CreateRenderer(gWindow, -1, 0);
+    if (!gSdlRenderer) return false;
 
-    rendererInit(gRenderer);
+    rendererInit(gSdlRenderer);
 
     gRunning = true;
     return true;
@@ -49,11 +49,11 @@ void gameUpdate() {
 
 }
 
-void gameRender() { rendererDraw(gRenderer); }
+void gameRender() { rendererDraw(); }
 
 void gameClean() {
     rendererClean();
-    SDL_DestroyRenderer(gRenderer);
+    SDL_DestroyRenderer(gSdlRenderer);
     SDL_DestroyWindow(gWindow);
     SDL_Quit();
 }
