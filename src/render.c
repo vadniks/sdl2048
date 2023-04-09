@@ -53,6 +53,17 @@ SDL_Texture* makeTextTexture(char* text) {
     return texture;
 }
 
+void drawNum(SDL_Rect* rect, int num) {
+    char* text = SDL_calloc(MAX_NUM_LENGTH, sizeof(char));
+    SDL_itoa(num, text, (signed) MAX_NUM_LENGTH);
+
+    SDL_Texture* texture = makeTextTexture(text);
+    SDL_RenderCopy(gRenderer, texture, NULL, rect);
+
+    SDL_DestroyTexture(texture);
+    SDL_free(text);
+}
+
 void drawField() {
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderSetScale(gRenderer, (float) THICKNESS, (float) THICKNESS);
@@ -63,19 +74,18 @@ void drawField() {
         SDL_RenderDrawLine(gRenderer, (signed) gFieldStart, each, (signed) gFieldEnd, each);
     }
 
-    SDL_Rect rect = (SDL_Rect) { 0, 0, (signed) THICKNESS, (signed) THICKNESS };
-    for (unsigned i = 0; i < FIELD_ITEMS; i++) {
-        rect.x = (signed) (i * THICKNESS + 10); // TODO: make it display numbers currently, according to the field cells
-        rect.y = 10;
+    const int numWidth = 50, numHeight = 50;
+    SDL_Rect rect = (SDL_Rect) { 0, 0, numWidth, numHeight };
+    SDL_RenderSetScale(gRenderer, 1, 1);
 
-        char* text = SDL_calloc(MAX_NUM_LENGTH, sizeof(char));
-        SDL_itoa((signed) gFieldItems[i], text, (signed) MAX_NUM_LENGTH);
+    for (unsigned row = 0, column, test = 0; row < ROWS; row++) {
+        for (column = 0; column < COLUMNS; column++, test++) {
+            // row * columns + column // TODO
+            rect.x = (signed) (row * gTileSize / THICKNESS + gFieldStart) * 4;
+            rect.y = (signed) (column * gTileSize / THICKNESS + gFieldStart) * 4;
 
-        SDL_Texture* texture = makeTextTexture(text);
-        SDL_RenderCopy(gRenderer, texture, NULL, &rect);
-
-        SDL_DestroyTexture(texture);
-        SDL_free(text);
+            drawNum(&rect, (signed) test);
+        }
     }
 }
 
