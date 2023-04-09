@@ -88,7 +88,11 @@ void drawField() {
         SDL_RenderDrawLine(gRenderer, (signed) gFieldStart, each, (signed) gFieldEnd, each);
     }
 
-    SDL_Rect rect = (SDL_Rect) { 0, 0, (signed) (gTileSize - THICKNESS * 2), (signed) (gTileSize - THICKNESS * 2) };
+    SDL_Rect rect = (SDL_Rect) {
+        0, 0,
+        (signed) (gTileSize - THICKNESS * 2),
+        (signed) (gTileSize - THICKNESS * 2)
+    };
     SDL_RenderSetScale(gRenderer, 1, 1);
 
     for (unsigned row = 0, column; row < ROWS; row++) {
