@@ -23,8 +23,8 @@ void processKeyboardButtonPress(SDL_Keycode keycode) {
             *gRendererScore = 16;
             break;
         case SDLK_s:
-            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 32);
-            *gRendererScore = 32;
+            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 128);
+            *gRendererScore = 128;
             break;
         case SDLK_d:
             for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 2048);
