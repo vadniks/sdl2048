@@ -109,7 +109,7 @@ void drawInfo() {
     SDL_Rect rect = (SDL_Rect) {
         (signed) (gFieldSize + THICKNESS),
         (signed) THICKNESS,
-        120, 20
+        150, 30
     };
 
     const unsigned scoreMsgLength = 15, maxLength = scoreMsgLength + MAX_NUM_LENGTH + 1;

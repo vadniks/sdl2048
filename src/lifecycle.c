@@ -4,7 +4,7 @@
 #include "render.h"
 #include "logic.h"
 
-const unsigned WIDTH = 640;
+const unsigned WIDTH = 800;
 const unsigned HEIGHT = WIDTH / 2;
 
 SDL_Window* gWindow = NULL;
