@@ -2,6 +2,7 @@
 #include <sdl/SDL.h>
 #include "lifecycle.h"
 #include "render.h"
+#include "logic.h"
 
 const unsigned WIDTH = 640;
 const unsigned HEIGHT = WIDTH / 2;
@@ -28,6 +29,7 @@ bool gameInit() {
     if (!gSdlRenderer) return false;
 
     rendererInit(gSdlRenderer);
+    logicInit(&gRunning);
 
     gRunning = true;
     return true;
@@ -36,23 +38,18 @@ bool gameInit() {
 void gameHandleEvents() {
     SDL_Event event;
     if (!SDL_PollEvent(&event)) return;
-
-    switch (event.type) {
-        case SDL_QUIT:
-            gRunning = false;
-            break;
-        default: break;
-    }
+    logicHandleEvent(&event);
 }
 
 void gameUpdate() {
-
+    // TODO: make fixed update (continuous timer task with fixed delay)
 }
 
 void gameRender() { rendererDraw(); }
 
 void gameClean() {
     rendererClean();
+    logicClean();
     SDL_DestroyRenderer(gSdlRenderer);
     SDL_DestroyWindow(gWindow);
     SDL_Quit();
