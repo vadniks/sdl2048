@@ -112,6 +112,7 @@ void drawInfo() {
     const unsigned scoreMsgLength = 15, maxLength = scoreMsgLength + MAX_NUM_LENGTH;
     char* score = numToText((signed) gScore);
     char* buffer = SDL_calloc(sizeof(char), scoreMsgLength + MAX_NUM_LENGTH);
+
     SDL_strlcat(buffer, "Current score: ", maxLength);
     SDL_strlcat(buffer, score, maxLength);
 
