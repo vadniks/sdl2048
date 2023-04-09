@@ -4,7 +4,7 @@
 #include "render.h"
 
 const unsigned WIDTH = 640;
-const unsigned HEIGHT = 480;
+const unsigned HEIGHT = 640;
 
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
