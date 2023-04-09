@@ -3,6 +3,9 @@
 #include "lifecycle.h"
 #include "render.h"
 
+const unsigned WIDTH = 640;
+const unsigned HEIGHT = 480;
+
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 bool gRunning = false;
@@ -15,8 +18,8 @@ bool gameInit() {
         "Title",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        640,
-        480,
+        (signed) WIDTH,
+        (signed) HEIGHT,
         SDL_WINDOW_SHOWN
     );
     if (!gWindow) return false;
@@ -49,13 +52,17 @@ void gameUpdate() {
 void gameRender() { doRender(gRenderer); }
 
 void gameClean() {
+    cleanRenderer();
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
     SDL_Quit();
 }
 
 bool gameLoop() {
-    if (!gameInit()) return false;
+    if (!gameInit()) {
+        gameClean();
+        return false;
+    }
 
     while (gRunning) {
         gameHandleEvents();
