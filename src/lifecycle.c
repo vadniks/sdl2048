@@ -29,7 +29,7 @@ bool gameInit() {
     if (!gSdlRenderer) return false;
 
     rendererInit(gSdlRenderer);
-    logicInit(&gRunning, rendererFieldItems());
+    logicInit(&gRunning, rendererFieldItems(), rendererScore());
 
     gRunning = true;
     return true;

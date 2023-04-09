@@ -1,6 +1,7 @@
 
 #include <sdl_ttf/SDL_ttf.h>
 #include <assert.h>
+#include <string.h>
 #include "render.h"
 
 const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, FIELD_ITEMS = ROWS * COLUMNS, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048;
@@ -11,6 +12,7 @@ unsigned gWidth = 0, gHeight = 0, gFieldSize = 0, gTileSize = 0, gFieldStart = 0
 TTF_Font* gFont = NULL;
 SDL_Color* gTextColor = NULL;
 SDL_Renderer* gRenderer = NULL;
+unsigned gScore = 0;
 
 void setDrawColorToDefault()
 { SDL_SetRenderDrawColor(gRenderer, 49, 54, 59, 255); }
@@ -36,6 +38,8 @@ void rendererInit(SDL_Renderer* renderer) {
 
 unsigned* rendererFieldItems() { return gFieldItems; }
 
+unsigned* rendererScore() { return &gScore; }
+
 void drawWindowFrame() {
     SDL_Rect rect = (SDL_Rect) {
         0, 0,
@@ -55,12 +59,16 @@ SDL_Texture* makeTextTexture(char* text) {
     return texture;
 }
 
+char* numToText(int num) {
+    char* text = SDL_calloc(MAX_NUM_LENGTH, sizeof(char));
+    SDL_itoa(num, text, 10);
+    return text;
+}
+
 void drawNum(SDL_Rect* rect, int num) {
     assert(num >= 0 && num <= MAX_NUM_VALUE);
 
-    char* text = SDL_calloc(MAX_NUM_LENGTH, sizeof(char));
-    SDL_itoa(num, text, 10);
-
+    char* text = numToText(num);
     SDL_Texture* texture = makeTextTexture(text);
     SDL_RenderCopy(gRenderer, texture, NULL, rect);
 
@@ -102,10 +110,17 @@ void drawInfo() {
         120, 20
     };
 
-    SDL_Texture* texture = makeTextTexture("Current score: ");
+    char* score = numToText((signed) gScore);
+    char* buffer = SDL_calloc(sizeof(char), 15 + MAX_NUM_LENGTH);
+    strcat(buffer, "Current score: ");
+    strcat(buffer, score);
+
+    SDL_Texture* texture = makeTextTexture(buffer);
     SDL_RenderSetScale(gRenderer, 1, 1);
     SDL_RenderCopy(gRenderer, texture, NULL, &rect);
 
+    SDL_free(score);
+    SDL_free(buffer);
     SDL_DestroyTexture(texture);
 }
 

@@ -8,5 +8,6 @@ extern const unsigned COLUMNS;
 
 void rendererInit(SDL_Renderer* renderer);
 unsigned* rendererFieldItems();
+unsigned* rendererScore();
 void rendererDraw();
 void rendererClean();
