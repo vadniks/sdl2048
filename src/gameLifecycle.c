@@ -23,11 +23,20 @@ bool init() {
     gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
     if (!gRenderer) return false;
 
+    gRunning = true;
     return true;
 }
 
 void handleEvents() {
+    SDL_Event event;
+    if (!SDL_PollEvent(&event)) return;
 
+    switch (event.type) {
+        case SDL_QUIT:
+            gRunning = false;
+            break;
+        default: break;
+    }
 }
 
 void update() {
@@ -48,7 +57,6 @@ void clean() {
 
 bool loop() {
     if (!init()) return false;
-    gRunning = true;
 
     while (gRunning) {
         handleEvents();
