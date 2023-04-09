@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "render.h"
 
-const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, FIELD_ITEMS = ROWS * COLUMNS;
+const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, FIELD_ITEMS = ROWS * COLUMNS, MAX_NUM_LENGTH = 4;
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
 
 unsigned* gFieldItems = NULL;
@@ -46,7 +46,7 @@ void drawWindowFrame() {
     SDL_RenderDrawRect(gRenderer, &rect);
 }
 
-SDL_Texture* makeTextTexture(const char* text) {
+SDL_Texture* makeTextTexture(char* text) {
     SDL_Surface* surface = TTF_RenderText_Solid(gFont, text, *gTextColor);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
     SDL_FreeSurface(surface);
@@ -63,10 +63,20 @@ void drawField() {
         SDL_RenderDrawLine(gRenderer, (signed) gFieldStart, each, (signed) gFieldEnd, each);
     }
 
+    SDL_Rect rect = (SDL_Rect) { 0, 0, (signed) THICKNESS, (signed) THICKNESS };
+    for (unsigned i = 0; i < FIELD_ITEMS; i++) {
+        rect.x = (signed) (i * THICKNESS + 10); // TODO: make it display numbers currently, according to the field cells
+        rect.y = 10;
 
-//    for (unsigned i = 0; i < FIELD_ITEMS; i++) {
-//
-//    }
+        char* text = SDL_calloc(MAX_NUM_LENGTH, sizeof(char));
+        SDL_itoa((signed) gFieldItems[i], text, (signed) MAX_NUM_LENGTH);
+
+        SDL_Texture* texture = makeTextTexture(text);
+        SDL_RenderCopy(gRenderer, texture, NULL, &rect);
+
+        SDL_DestroyTexture(texture);
+        SDL_free(text);
+    }
 }
 
 void drawInfo() {
