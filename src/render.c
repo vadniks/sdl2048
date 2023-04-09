@@ -12,14 +12,14 @@ void setDrawColorToDefault(SDL_Renderer* renderer)
 
 void initRenderer(SDL_Renderer* renderer) {
     assert(ROWS == COLUMNS);
-    gField = SDL_malloc(sizeof(unsigned) * ROWS * COLUMNS);
-
     SDL_GetRendererOutputSize(renderer, (signed*) &gWidth, (signed*) &gHeight);
+
     gFieldSize = gWidth / 2;
     gTileSize = (gFieldSize - (ROWS + 1) * THICKNESS) / ROWS;
-
     gFieldStart = (signed) THICKNESS / 2;
     gFieldEnd = (signed) (ROWS * gTileSize / THICKNESS + gFieldStart);
+
+    gField = SDL_malloc(sizeof(unsigned) * ROWS * COLUMNS);
 }
 
 void drawWindowFrame(SDL_Renderer* renderer) {
