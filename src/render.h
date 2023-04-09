@@ -6,6 +6,6 @@
 extern const unsigned ROWS;
 extern const unsigned COLUMNS;
 
-void initRenderer(SDL_Renderer* renderer);
-void doRender(SDL_Renderer* renderer);
-void cleanRenderer();
+void rendererInit(SDL_Renderer* renderer);
+void rendererDraw(SDL_Renderer* renderer);
+void rendererClean();

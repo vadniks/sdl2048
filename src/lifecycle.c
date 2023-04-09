@@ -27,7 +27,7 @@ bool gameInit() {
     gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
     if (!gRenderer) return false;
 
-    initRenderer(gRenderer);
+    rendererInit(gRenderer);
 
     gRunning = true;
     return true;
@@ -49,10 +49,10 @@ void gameUpdate() {
 
 }
 
-void gameRender() { doRender(gRenderer); }
+void gameRender() { rendererDraw(gRenderer); }
 
 void gameClean() {
-    cleanRenderer();
+    rendererClean();
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
     SDL_Quit();
