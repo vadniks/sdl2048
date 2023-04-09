@@ -46,6 +46,13 @@ void drawWindowFrame() {
     SDL_RenderDrawRect(gRenderer, &rect);
 }
 
+SDL_Texture* makeTextTexture(const char* text) {
+    SDL_Surface* surface = TTF_RenderText_Solid(gFont, text, *gTextColor);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
+    SDL_FreeSurface(surface);
+    return texture;
+}
+
 void drawField() {
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderSetScale(gRenderer, (float) THICKNESS, (float) THICKNESS);
@@ -62,23 +69,17 @@ void drawField() {
 //    }
 }
 
-//SDL_Texture* makeText(const char* text) {
-//
-//}
-
 void drawInfo() {
-    SDL_Surface* surface = TTF_RenderText_Solid(gFont, "Current score: ", *gTextColor); // TODO: show score here
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
-
-    SDL_RenderSetScale(gRenderer, 1, 1);
     SDL_Rect rect = (SDL_Rect) {
         (signed) (gFieldSize + THICKNESS),
         (signed) THICKNESS,
         120, 20
     };
+
+    SDL_Texture* texture = makeTextTexture("Current score: ");
+    SDL_RenderSetScale(gRenderer, 1, 1);
     SDL_RenderCopy(gRenderer, texture, NULL, &rect);
 
-    SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 }
 
