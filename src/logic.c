@@ -12,23 +12,23 @@ void logicInit(bool* isGameRunning, unsigned* rendererFieldItems, unsigned* rend
     gRendererScore = rendererScore;
 }
 
+#define KEY_EVENT_TEST(x) \
+    for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = (x)); \
+        *gRendererScore = x;
+
 void processKeyboardButtonPress(SDL_Keycode keycode) {
     switch (keycode) {
         case SDLK_w: // TODO: test only
-            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 1);
-            *gRendererScore = 1;
+            KEY_EVENT_TEST(2)
             break;
         case SDLK_a:
-            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 16);
-            *gRendererScore = 16;
+            KEY_EVENT_TEST(16)
             break;
         case SDLK_s:
-            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 128);
-            *gRendererScore = 128;
+            KEY_EVENT_TEST(128)
             break;
         case SDLK_d:
-            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 2048);
-            *gRendererScore = 2048;
+            KEY_EVENT_TEST(2048)
             break;
         default: break;
     }
