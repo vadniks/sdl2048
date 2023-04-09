@@ -46,8 +46,8 @@ void clean() {
     SDL_Quit();
 }
 
-int loop() {
-    if (!init()) return 1;
+bool loop() {
+    if (!init()) return false;
     gRunning = true;
 
     while (gRunning) {
@@ -57,5 +57,5 @@ int loop() {
     }
 
     clean();
-    return 0;
+    return true;
 }

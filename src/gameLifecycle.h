@@ -8,4 +8,4 @@ void handleEvents();
 void update();
 void render();
 void clean();
-int loop();
+bool loop();
