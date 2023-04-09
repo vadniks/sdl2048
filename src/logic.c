@@ -14,25 +14,21 @@ void logicInit(bool* isGameRunning, unsigned* rendererFieldItems, unsigned* rend
 
 void processKeyboardButtonPress(SDL_Keycode keycode) {
     switch (keycode) {
-        case SDLK_w:
-            SDL_Log("w\n"); // TODO: test only
+        case SDLK_w: // TODO: test only
             for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 1);
             *gRendererScore = 1;
             break;
         case SDLK_a:
-            SDL_Log("a\n");
-            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 2);
-            *gRendererScore = 2;
+            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 16);
+            *gRendererScore = 16;
             break;
         case SDLK_s:
-            SDL_Log("s\n");
-            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 3);
-            *gRendererScore = 3;
+            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 32);
+            *gRendererScore = 32;
             break;
         case SDLK_d:
-            SDL_Log("d\n");
-            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 4);
-            *gRendererScore = 4;
+            for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 2048);
+            *gRendererScore = 2048;
             break;
         default: break;
     }

@@ -76,7 +76,7 @@ void drawNum(SDL_Rect* rect, int num) {
 }
 
 int calcFieldNumCoord(unsigned logicalCoord)
-{ return (signed) ((logicalCoord * gTileSize / THICKNESS + gFieldStart) * THICKNESS + THICKNESS); }
+{ return (signed) ((logicalCoord * gTileSize / THICKNESS + gFieldStart) * THICKNESS); }
 
 void drawField() {
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
@@ -88,8 +88,7 @@ void drawField() {
         SDL_RenderDrawLine(gRenderer, (signed) gFieldStart, each, (signed) gFieldEnd, each);
     }
 
-    const int numWidth = 50, numHeight = 50;
-    SDL_Rect rect = (SDL_Rect) { 0, 0, numWidth, numHeight };
+    SDL_Rect rect = (SDL_Rect) { 0, 0, (signed) (gTileSize - THICKNESS * 2), (signed) (gTileSize - THICKNESS * 2) };
     SDL_RenderSetScale(gRenderer, 1, 1);
 
     for (unsigned row = 0, column; row < ROWS; row++) {
@@ -109,9 +108,9 @@ void drawInfo() {
         120, 20
     };
 
-    const unsigned scoreMsgLength = 15, maxLength = scoreMsgLength + MAX_NUM_LENGTH;
+    const unsigned scoreMsgLength = 15, maxLength = scoreMsgLength + MAX_NUM_LENGTH + 1;
     char* score = numToText((signed) gScore);
-    char* buffer = SDL_calloc(sizeof(char), scoreMsgLength + MAX_NUM_LENGTH);
+    char* buffer = SDL_calloc(sizeof(char), maxLength);
 
     SDL_strlcat(buffer, "Current score: ", maxLength);
     SDL_strlcat(buffer, score, maxLength);
