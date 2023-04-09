@@ -55,7 +55,7 @@ SDL_Texture* makeTextTexture(char* text) {
 
 void drawNum(SDL_Rect* rect, int num) {
     char* text = SDL_calloc(MAX_NUM_LENGTH, sizeof(char));
-    SDL_itoa(num, text, (signed) MAX_NUM_LENGTH);
+    SDL_itoa(num, text, 10);
 
     SDL_Texture* texture = makeTextTexture(text);
     SDL_RenderCopy(gRenderer, texture, NULL, rect);
