@@ -80,9 +80,9 @@ void drawField() {
 
     for (unsigned row = 0, column, test = 0; row < ROWS; row++) {
         for (column = 0; column < COLUMNS; column++, test++) {
-            // row * columns + column // TODO
-            rect.x = (signed) (row * gTileSize / THICKNESS + gFieldStart) * 4;
-            rect.y = (signed) (column * gTileSize / THICKNESS + gFieldStart) * 4;
+            // row * columns + column // TODO: too many arithmetic
+            rect.x = (signed) ((row * gTileSize / THICKNESS + gFieldStart) * THICKNESS + THICKNESS);
+            rect.y = (signed) ((column * gTileSize / THICKNESS + gFieldStart) * THICKNESS + THICKNESS);
 
             drawNum(&rect, (signed) test);
         }
