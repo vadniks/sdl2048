@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "render.h"
 
-const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, FIELD_ITEMS = ROWS * COLUMNS, MAX_NUM_LENGTH = 4;
+const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, FIELD_ITEMS = ROWS * COLUMNS, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048;
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
 
 unsigned* gFieldItems = NULL;
@@ -54,6 +54,8 @@ SDL_Texture* makeTextTexture(char* text) {
 }
 
 void drawNum(SDL_Rect* rect, int num) {
+    assert(num >= 0 && num <= MAX_NUM_VALUE);
+
     char* text = SDL_calloc(MAX_NUM_LENGTH, sizeof(char));
     SDL_itoa(num, text, 10);
 
