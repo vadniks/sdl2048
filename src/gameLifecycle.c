@@ -10,11 +10,18 @@ bool init() {
     if (SDL_Init(SDL_INIT_VIDEO))
         return false;
 
-    gWindow = SDL_CreateWindow("Title", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
-    if (gWindow == NULL) return false;
+    gWindow = SDL_CreateWindow(
+        "Title",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        640,
+        480,
+        SDL_WINDOW_SHOWN
+    );
+    if (!gWindow) return false;
 
     gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
-    if (gRenderer == NULL) return false;
+    if (!gRenderer) return false;
 
     return true;
 }
