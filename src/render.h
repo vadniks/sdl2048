@@ -4,8 +4,7 @@
 #include <sdl/SDL.h>
 #include <stdbool.h>
 
-extern const unsigned ROWS;
-extern const unsigned COLUMNS;
+extern const unsigned ROWS, COLUMNS, IGNORED_NUM;
 
 typedef struct {
     SDL_Rect* geometry;

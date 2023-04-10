@@ -1,10 +1,18 @@
 
+#include <stdlib.h>
+#include <time.h>
+#include <assert.h>
 #include "logic.h"
+
+const unsigned NEW_NUMS_COUNT = 2, NEW_NUM_VALUE = 2;
 
 bool* gIsRunning = NULL;
 unsigned* gRendererFieldItems = NULL;
 unsigned* gRendererScore = NULL;
 RendererResetButtonState* gRendererResetButtonState = NULL;
+unsigned gMaxSpawnIterations = 0;
+
+void initGame();
 
 void logicInit(
     bool* isGameRunning,
@@ -16,25 +24,54 @@ void logicInit(
     gRendererFieldItems = rendererFieldItems;
     gRendererScore = rendererScore;
     gRendererResetButtonState = rendererResetButtonState;
+
+    initGame();
 }
 
-#define KEY_EVENT_TEST(x) \
-    for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = (x)); \
-        *gRendererScore = x;
+void spawnNew(unsigned iteration);
+
+void initGame() {
+    srand(time(NULL)); // NOLINT(cert-msc51-cpp)
+    gMaxSpawnIterations = ROWS * COLUMNS - 1;
+    spawnNew(0);
+}
+
+unsigned coordsToIndex(unsigned row, unsigned column) {
+    assert(row < ROWS && column < COLUMNS);
+    return row * COLUMNS + column;
+}
+
+#define NUM_AT(r, c) gRendererFieldItems[coordsToIndex(r, c)]
+
+void spawnNew(unsigned iteration) {
+    if (iteration >= NEW_NUMS_COUNT || iteration > gMaxSpawnIterations) return;
+
+#   define RAND rand() % ROWS
+    unsigned row = RAND, column = RAND; // NOLINT(cert-msc50-cpp)
+#   undef RAND
+
+    bool successful = false; // TODO: create array of allowed cells
+    if (NUM_AT(row, column) == IGNORED_NUM) {
+        successful = true;
+        NUM_AT(row, column) = NEW_NUM_VALUE;
+    }
+
+    spawnNew(iteration + (successful ? 1 : 0));
+}
 
 void processKeyboardButtonPress(SDL_Keycode keycode) {
     switch (keycode) {
-        case SDLK_w: // TODO: test only
-            KEY_EVENT_TEST(2)
+        case SDLK_w:
+
             break;
         case SDLK_a:
-            KEY_EVENT_TEST(16)
+
             break;
         case SDLK_s:
-            KEY_EVENT_TEST(128)
+
             break;
         case SDLK_d:
-            KEY_EVENT_TEST(2048)
+
             break;
         default: break;
     }
