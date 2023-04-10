@@ -104,27 +104,50 @@ void drawField() {
     }
 }
 
-void drawInfo() {
+void drawCurrentScore() {
     SDL_Rect rect = (SDL_Rect) {
         (signed) (gFieldSize + THICKNESS),
         (signed) THICKNESS,
-        150, 30
+        175, 30
     };
 
     const unsigned scoreMsgLength = 15, maxLength = scoreMsgLength + MAX_NUM_LENGTH + 1;
-    char* score = numToText((signed) gScore);
+    char* scoreText = numToText((signed) gScore);
     char* buffer = SDL_calloc(sizeof(char), maxLength);
 
     SDL_strlcat(buffer, "Current score: ", maxLength);
-    SDL_strlcat(buffer, score, maxLength);
+    SDL_strlcat(buffer, scoreText, maxLength);
 
     SDL_Texture* texture = makeTextTexture(buffer);
     SDL_RenderSetScale(gRenderer, 1, 1);
     SDL_RenderCopy(gRenderer, texture, NULL, &rect);
 
-    SDL_free(score);
+    SDL_free(scoreText);
     SDL_free(buffer);
     SDL_DestroyTexture(texture);
+}
+
+void drawResetButton() {
+    const int width = 80, height = 30, borderThickness = 2;
+    SDL_Rect rect = (SDL_Rect) {
+        (signed) (gFieldSize + THICKNESS) / borderThickness,
+        (signed) ((THICKNESS * 2) + 30) / borderThickness,
+        width / borderThickness,
+        height / borderThickness
+    };
+
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+    SDL_RenderSetScale(gRenderer, (float) borderThickness, (float) borderThickness);
+    SDL_RenderDrawRect(gRenderer, &rect);
+
+    rect.x = rect.x * borderThickness + 2;
+    rect.y = rect.y * borderThickness + 2;
+    rect.w = rect.w * borderThickness - 4;
+    rect.h = rect.h * borderThickness - 4;
+
+    SDL_SetRenderDrawColor(gRenderer, 56, 62, 73, 255); // TODO: display 'Reset' text
+    SDL_RenderSetScale(gRenderer, 1, 1);
+    SDL_RenderFillRect(gRenderer, &rect);
 }
 
 void rendererDraw() {
@@ -133,7 +156,8 @@ void rendererDraw() {
 
     drawWindowFrame();
     drawField();
-    drawInfo();
+    drawCurrentScore();
+    drawResetButton();
 
     SDL_RenderPresent(gRenderer);
 }

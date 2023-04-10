@@ -25,7 +25,7 @@ bool gameInit() {
     );
     if (!gWindow) return false;
 
-    gSdlRenderer = SDL_CreateRenderer(gWindow, -1, 0);
+    gSdlRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
     if (!gSdlRenderer) return false;
 
     rendererInit(gSdlRenderer);
