@@ -1,10 +1,10 @@
 
 #include <sdl_ttf/SDL_ttf.h>
 #include <assert.h>
-#include <stdbool.h>
 #include "render.h"
 
-const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048;
+const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048,
+    RESET_BUTTON_WIDTH = 80, RESET_BUTTON_HEIGHT = 30, RESET_BUTTON_BORDER_THICKNESS = 2;
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
 
 unsigned* gFieldItems = NULL;
@@ -14,6 +14,7 @@ SDL_Color* gTextColor = NULL;
 SDL_Renderer* gRenderer = NULL;
 unsigned gScore = 0;
 bool gIsResetButtonPressed = false;
+SDL_Rect* gResetButtonGeometry = NULL;
 
 void setDrawColorToDefault()
 { SDL_SetRenderDrawColor(gRenderer, 49, 54, 59, 255); }
@@ -35,11 +36,24 @@ void rendererInit(SDL_Renderer* renderer) {
 
     gTextColor = SDL_calloc(1, sizeof *gTextColor);
     gTextColor->a = 255;
+
+    gResetButtonGeometry = SDL_malloc(sizeof *gResetButtonGeometry);
+    gResetButtonGeometry->x = (signed) ((gFieldSize + THICKNESS) / RESET_BUTTON_BORDER_THICKNESS);
+    gResetButtonGeometry->y = (signed) (((THICKNESS * 2) + 30) / RESET_BUTTON_BORDER_THICKNESS);
+    gResetButtonGeometry->w = (signed) (RESET_BUTTON_WIDTH / RESET_BUTTON_BORDER_THICKNESS);
+    gResetButtonGeometry->h = (signed) (RESET_BUTTON_HEIGHT / RESET_BUTTON_BORDER_THICKNESS);
 }
 
 unsigned* rendererFieldItems() { return gFieldItems; }
 
 unsigned* rendererScore() { return &gScore; }
+
+RendererResetButtonState* rendererResetButtonState() {
+    RendererResetButtonState* state = SDL_malloc(sizeof *state);
+    state->geometry = gResetButtonGeometry;
+    state->isPressed = &gIsResetButtonPressed;
+    return state;
+}
 
 void drawWindowFrame() {
     SDL_Rect rect = (SDL_Rect) {
@@ -130,22 +144,16 @@ void drawCurrentScore() {
 }
 
 void drawResetButton() {
-    const int width = 80, height = 30, borderThickness = 2;
-    SDL_Rect rect = (SDL_Rect) {
-        (signed) (gFieldSize + THICKNESS) / borderThickness,
-        (signed) ((THICKNESS * 2) + 30) / borderThickness,
-        width / borderThickness,
-        height / borderThickness
-    };
-
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
-    SDL_RenderSetScale(gRenderer, (float) borderThickness, (float) borderThickness);
-    SDL_RenderDrawRect(gRenderer, &rect);
+    SDL_RenderSetScale(gRenderer, (float) RESET_BUTTON_BORDER_THICKNESS, (float) RESET_BUTTON_BORDER_THICKNESS);
+    SDL_RenderDrawRect(gRenderer, gResetButtonGeometry);
 
-    rect.x = rect.x * borderThickness + 2;
-    rect.y = rect.y * borderThickness + 2;
-    rect.w = rect.w * borderThickness - 4;
-    rect.h = rect.h * borderThickness - 4;
+    SDL_Rect* rect = SDL_malloc(sizeof *rect);
+    SDL_memcpy(rect, gResetButtonGeometry, sizeof *rect);
+    rect->x = rect->x * (signed) RESET_BUTTON_BORDER_THICKNESS + 2;
+    rect->y = rect->y * (signed) RESET_BUTTON_BORDER_THICKNESS + 2;
+    rect->w = rect->w * (signed) RESET_BUTTON_BORDER_THICKNESS - 4;
+    rect->h = rect->h * (signed) RESET_BUTTON_BORDER_THICKNESS - 4;
 
 #   define SET_COLOR(r, g, b) SDL_SetRenderDrawColor(gRenderer, r, g, b, 255)
     gIsResetButtonPressed
@@ -154,11 +162,12 @@ void drawResetButton() {
 #   undef SET_COLOR
 
     SDL_RenderSetScale(gRenderer, 1, 1);
-    SDL_RenderFillRect(gRenderer, &rect);
+    SDL_RenderFillRect(gRenderer, rect);
 
     SDL_Texture* texture = makeTextTexture("Reset");
-    SDL_RenderCopy(gRenderer, texture, NULL, &rect);
+    SDL_RenderCopy(gRenderer, texture, NULL, rect);
     SDL_DestroyTexture(texture);
+    SDL_free(rect);
 }
 
 void rendererDraw() {
@@ -177,5 +186,6 @@ void rendererClean() {
     SDL_free(gFieldItems);
     TTF_CloseFont(gFont);
     SDL_free(gTextColor);
+    SDL_free(gResetButtonGeometry);
     TTF_Quit();
 }
