@@ -26,11 +26,9 @@ void processKeyboardButtonPress(SDL_Keycode keycode) {
     switch (keycode) {
         case SDLK_w: // TODO: test only
             KEY_EVENT_TEST(2)
-            *gRendererResetButtonState->isPressed = true; // TODO: test only
             break;
         case SDLK_a:
             KEY_EVENT_TEST(16)
-            *gRendererResetButtonState->isPressed = false;
             break;
         case SDLK_s:
             KEY_EVENT_TEST(128)
@@ -42,7 +40,25 @@ void processKeyboardButtonPress(SDL_Keycode keycode) {
     }
 }
 
+bool isMouseWithinResetButtonArea() {
+    int mouseX = -1, mouseY = -1;
+    SDL_GetMouseState(&mouseX, &mouseY);
+
+    int margin = gRendererResetButtonState->margin;
+    mouseX *= margin;
+    mouseY *= margin;
+
+    SDL_Log(""); // TODO
+
+    SDL_Rect* buttonRect = gRendererResetButtonState->geometry;
+    return mouseX >= buttonRect->x
+        && mouseX <= buttonRect->x + buttonRect->w
+        && mouseY >= buttonRect->y
+        && mouseY >= buttonRect->y + buttonRect->h;
+}
+
 void logicHandleEvent(SDL_Event* event) {
+#   define SET_RESET_BUTTON_PRESSED(x) *(gRendererResetButtonState->isPressed) = x;
     switch (event->type) {
         case SDL_QUIT:
             *gIsRunning = false;
@@ -50,8 +66,15 @@ void logicHandleEvent(SDL_Event* event) {
         case SDL_KEYDOWN:
             processKeyboardButtonPress(event->key.keysym.sym);
             break;
+        case SDL_MOUSEBUTTONDOWN:
+            if (isMouseWithinResetButtonArea())
+                SET_RESET_BUTTON_PRESSED(true)
+            break;
+        case SDL_MOUSEBUTTONUP:
+            SET_RESET_BUTTON_PRESSED(false)
         default: break;
     }
+#   undef SET_RESET_BUTTON_PRESSED
 }
 
 void logicClean() {
