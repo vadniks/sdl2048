@@ -95,9 +95,9 @@ bool isMouseWithinResetButtonArea() {
     int mouseX = -1, mouseY = -1;
     SDL_GetMouseState(&mouseX, &mouseY);
 
-    int coordsMultiplier = gRendererResetButtonState->scaleMultiplier;
-    mouseX /= coordsMultiplier;
-    mouseY /= coordsMultiplier;
+    int scaleMultiplier = gRendererResetButtonState->scaleMultiplier;
+    mouseX /= scaleMultiplier;
+    mouseY /= scaleMultiplier;
 
     SDL_Rect* buttonRect = gRendererResetButtonState->geometry;
     return mouseX >= buttonRect->x
