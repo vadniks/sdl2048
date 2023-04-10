@@ -38,37 +38,17 @@ void initGame() {
     spawnNew(0);
 }
 
-unsigned coordsToIndex(unsigned row, unsigned column) {
-    assert(row < ROWS && column < COLUMNS);
-    return row * COLUMNS + column;
-}
-
-// TODO: display newly spawned nums with different color
-
-#define NUM_AT(x, y) gRendererFieldItems[coordsToIndex(x, y)]
-
-typedef struct {
-    unsigned x;
-    unsigned y;
-} Coords;
-
-void spawnNew(unsigned iteration) {
+void spawnNew(unsigned iteration) { // TODO: display newly spawned nums with different color
     if (iteration >= NEW_NUMS_COUNT || iteration > gMaxSpawnIterations) return;
 
-    NUM_AT(1, 3) = 5;
+    unsigned* emptyIndexes = NULL;
+    unsigned emptyIndexesSize = 0, x = 0, y = 0;
 
-    for (unsigned i = 0; i < gNumsCount; i++)
-        gRendererFieldItems[i] = i;
-
-    Coords* emptyCoords = NULL;
-    unsigned emptyCoordsSize = 0, x = 0, y = 0;
     for (unsigned i = 0; i < gNumsCount; i++) {
-        if (gRendererFieldItems[i] != IGNORED_NUM) {
-            SDL_Log("%u %u %u\n", i, x, y);
-//        emptyCoords = SDL_realloc(emptyCoords, ++emptyCoordsSize);
-//        emptyCoords[emptyCoordsSize - 1] = (Coords) {  };
+        if (gRendererFieldItems[i] == IGNORED_NUM) {
+            emptyIndexes = SDL_realloc(emptyIndexes, sizeof(unsigned) * ++emptyIndexesSize);
+            emptyIndexes[emptyIndexesSize - 1] = i;
         }
-
         if (i > 0 && i % COLUMNS == 0) {
             y = 0;
             x++;
@@ -76,19 +56,16 @@ void spawnNew(unsigned iteration) {
         y++;
     }
 
-#   define RAND rand() % ROWS
-    unsigned row = RAND, column = RAND; // NOLINT(cert-msc50-cpp)
-#   undef RAND
-
+    if (!emptyIndexesSize) return;
+    const unsigned emptyIndex = emptyIndexes[rand() % emptyIndexesSize]; // NOLINT(cert-msc50-cpp)
     bool successful = false;
-    if (NUM_AT(row, column) == IGNORED_NUM) {
+
+    if (gRendererFieldItems[emptyIndex] == IGNORED_NUM) {
         successful = true;
-//        NUM_AT(row, column) = NEW_NUM_VALUE;
+        gRendererFieldItems[emptyIndex] = NEW_NUM_VALUE;
     }
 
-    if (emptyCoordsSize > 0)
-        SDL_free(emptyCoords);
-
+    SDL_free(emptyIndexes);
     spawnNew(iteration + (successful ? 1 : 0));
 }
 
