@@ -69,24 +69,31 @@ void spawnNew(unsigned iteration) { // TODO: display newly spawned nums with dif
     spawnNew(iteration + (successful ? 1 : 0));
 }
 
-void shiftUp() {
+void shiftNumsUp() {
     for (int y = (signed) ROWS - 1, x, index = 0; y >= 0; y--) {
         for (x = 0; x < COLUMNS; x++, index++) {
-            if (y - 1 >= 0)
-                gRendererFieldItems[x * COLUMNS + y - 1] *= gRendererFieldItems[x * COLUMNS + y];
+            if (y - 1 >= 0) gRendererFieldItems[x * COLUMNS + y - 1] *= gRendererFieldItems[x * COLUMNS + y];
             if (y > 0) gRendererFieldItems[x * COLUMNS + y] = IGNORED_NUM;
         }
     }
 }
 
+unsigned sumNums() {
+    unsigned sum = 0;
+    for (unsigned i = 0; i < gNumsCount; sum += gRendererFieldItems[i++]);
+    return sum;
+}
+
 void processKeyboardButtonPress(SDL_Keycode keycode) {
     bool needToSpawnNew = true;
+    unsigned sum = sumNums();
+
     switch (keycode) {
         case SDLK_w:
-            shiftUp();
+            shiftNumsUp();
             break;
         case SDLK_a:
-
+            // TODO
             break;
         case SDLK_s:
 
@@ -98,6 +105,8 @@ void processKeyboardButtonPress(SDL_Keycode keycode) {
             needToSpawnNew = false;
             break;
     }
+
+    (*gRendererScore) += sumNums() % sum;
     if (needToSpawnNew) spawnNew(0);
 }
 
