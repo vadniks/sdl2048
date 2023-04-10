@@ -4,7 +4,7 @@
 #include "render.h"
 
 const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048,
-    RESET_BUTTON_WIDTH = 80, RESET_BUTTON_HEIGHT = 30, RESET_BUTTON_BORDER_THICKNESS = 2, IGNORED_NUM = 0,
+    RESET_BUTTON_WIDTH = 80, RESET_BUTTON_HEIGHT = 30, RESET_BUTTON_BORDER_THICKNESS = 2, IGNORED_NUM = 1,
     CURRENT_SCORE_TEXT_WIDTH = 175, CURRENT_SCORE_TEXT_HEIGHT = 30;
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
 
@@ -31,6 +31,7 @@ void rendererInit(SDL_Renderer* renderer) {
     gFieldEnd = (signed) (ROWS * gTileSize / THICKNESS + gFieldStart);
 
     gFieldItems = SDL_calloc(ROWS * COLUMNS, sizeof(unsigned));
+    for (unsigned i = 0; i < ROWS * COLUMNS; gFieldItems[i++] = IGNORED_NUM);
 
     TTF_Init();
     gFont = TTF_OpenFont(FONT_PATH, 100);

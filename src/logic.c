@@ -70,16 +70,14 @@ void spawnNew(unsigned iteration) { // TODO: display newly spawned nums with dif
 }
 
 void shiftUp() {
-    bool hasSummed = false;
     for (int y = (signed) ROWS - 1, x, index = 0; y >= 0; y--) {
         for (x = 0; x < COLUMNS; x++, index++) {
-//            SDL_Log("%d %d %d %d", x, y, gRendererFieldItems[x * COLUMNS + y], y - 1 >= 0 ? y - 1 : y); // TODO
             if (y - 1 >= 0)
-                gRendererFieldItems[x * COLUMNS + y - 1] += gRendererFieldItems[x * COLUMNS + y];
-            if (y > 0) gRendererFieldItems[x * COLUMNS + y] = 0;
+                gRendererFieldItems[x * COLUMNS + y - 1] *= gRendererFieldItems[x * COLUMNS + y];
+            if (y > 0) gRendererFieldItems[x * COLUMNS + y] = IGNORED_NUM;
         }
-//        SDL_Log("\n");
     }
+    spawnNew(0);
 }
 
 void processKeyboardButtonPress(SDL_Keycode keycode) {
@@ -119,7 +117,7 @@ void onResetButtonEventReceived(bool down) {
     *(gRendererResetButtonState->isPressed) = down;
     if (!down) return;
 
-    for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 0);
+    for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = IGNORED_NUM);
     *gRendererScore = 0;
     spawnNew(0);
 }
