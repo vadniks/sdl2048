@@ -7,9 +7,9 @@
 extern const unsigned ROWS;
 extern const unsigned COLUMNS;
 
-typedef struct ResetButtonState {
+typedef struct {
     SDL_Rect* geometry;
-    int margin;
+    int coordsMultiplier;
     bool* isPressed;
 } RendererResetButtonState;
 

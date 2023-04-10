@@ -44,9 +44,9 @@ bool isMouseWithinResetButtonArea() {
     int mouseX = -1, mouseY = -1;
     SDL_GetMouseState(&mouseX, &mouseY);
 
-    int margin = gRendererResetButtonState->margin;
-    mouseX /= margin;
-    mouseY /= margin;
+    int coordsMultiplier = gRendererResetButtonState->coordsMultiplier;
+    mouseX /= coordsMultiplier;
+    mouseY /= coordsMultiplier;
 
     SDL_Rect* buttonRect = gRendererResetButtonState->geometry;
     return mouseX >= buttonRect->x
@@ -57,6 +57,8 @@ bool isMouseWithinResetButtonArea() {
 
 void onResetButtonEventReceived(bool down) {
     *(gRendererResetButtonState->isPressed) = down;
+    if (!down) return;
+
     for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 0);
     *gRendererScore = 0;
 }
