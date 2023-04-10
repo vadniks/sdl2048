@@ -51,7 +51,7 @@ unsigned* rendererScore() { return &gScore; }
 RendererResetButtonState* rendererResetButtonState() {
     RendererResetButtonState* state = SDL_malloc(sizeof *state);
     state->geometry = gResetButtonGeometry;
-    state->coordsMultiplier = (signed) RESET_BUTTON_BORDER_THICKNESS;
+    state->scaleMultiplier = (signed) RESET_BUTTON_BORDER_THICKNESS;
     state->isPressed = &gIsResetButtonPressed;
     return state;
 }

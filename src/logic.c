@@ -11,6 +11,7 @@ unsigned* gRendererFieldItems = NULL;
 unsigned* gRendererScore = NULL;
 RendererResetButtonState* gRendererResetButtonState = NULL;
 unsigned gMaxSpawnIterations = 0;
+unsigned gNumsCount = 0;
 
 void initGame();
 
@@ -33,6 +34,7 @@ void spawnNew(unsigned iteration);
 void initGame() {
     srand(time(NULL)); // NOLINT(cert-msc51-cpp)
     gMaxSpawnIterations = ROWS * COLUMNS - 1;
+    gNumsCount = ROWS * COLUMNS;
     spawnNew(0);
 }
 
@@ -41,20 +43,50 @@ unsigned coordsToIndex(unsigned row, unsigned column) {
     return row * COLUMNS + column;
 }
 
+// TODO: display newly spawned nums with different color
+
 #define NUM_AT(r, c) gRendererFieldItems[coordsToIndex(r, c)]
+
+typedef struct {
+    unsigned row;
+    unsigned column;
+} Coords;
 
 void spawnNew(unsigned iteration) {
     if (iteration >= NEW_NUMS_COUNT || iteration > gMaxSpawnIterations) return;
+
+    NUM_AT(1, 3) = 5;
+
+    for (unsigned i = 0; i < gNumsCount; i++)
+        gRendererFieldItems[i] = i;
+
+    Coords* emptyCoords = NULL;
+    unsigned emptyCoordsSize = 0, r = 0, c = 0;
+    for (unsigned i = 0; i < gNumsCount; i++) {
+        SDL_Log("%u %u %u %u\n", i, r, c, gRendererFieldItems[i]);
+        if (i > 0 && i % COLUMNS == 0) {
+            r = 0; // TODO: clean up
+            c++;
+        }
+        r++;
+        if (gRendererFieldItems[i] != IGNORED_NUM) continue;
+
+//        emptyCoords = SDL_realloc(emptyCoords, ++emptyCoordsSize);
+//        emptyCoords[emptyCoordsSize - 1] = (Coords) {  };
+    }
 
 #   define RAND rand() % ROWS
     unsigned row = RAND, column = RAND; // NOLINT(cert-msc50-cpp)
 #   undef RAND
 
-    bool successful = false; // TODO: create array of allowed cells
+    bool successful = false;
     if (NUM_AT(row, column) == IGNORED_NUM) {
         successful = true;
         NUM_AT(row, column) = NEW_NUM_VALUE;
     }
+
+    if (emptyCoordsSize > 0)
+        SDL_free(emptyCoords);
 
     spawnNew(iteration + (successful ? 1 : 0));
 }
@@ -81,7 +113,7 @@ bool isMouseWithinResetButtonArea() {
     int mouseX = -1, mouseY = -1;
     SDL_GetMouseState(&mouseX, &mouseY);
 
-    int coordsMultiplier = gRendererResetButtonState->coordsMultiplier;
+    int coordsMultiplier = gRendererResetButtonState->scaleMultiplier;
     mouseX /= coordsMultiplier;
     mouseY /= coordsMultiplier;
 

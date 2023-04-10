@@ -8,7 +8,7 @@ extern const unsigned ROWS, COLUMNS, IGNORED_NUM;
 
 typedef struct {
     SDL_Rect* geometry;
-    int coordsMultiplier;
+    int scaleMultiplier;
     bool* isPressed;
 } RendererResetButtonState;
 
