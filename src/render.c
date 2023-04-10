@@ -180,9 +180,6 @@ void drawResetButton() {
 }
 
 void drawTitle() {
-    SDL_Texture* texture = makeTextTexture("2048 clone");
-
-
     SDL_Rect rect = (SDL_Rect) {
         (signed) (gFieldSize + THICKNESS + (CURRENT_SCORE_TEXT_WIDTH / 2)),
         (signed) (gHeight - THICKNESS - 30),
@@ -190,6 +187,7 @@ void drawTitle() {
         (signed) CURRENT_SCORE_TEXT_HEIGHT
     };
 
+    SDL_Texture* texture = makeTextTexture("2048 clone");
     SDL_RenderCopy(gRenderer, texture, NULL, &rect);
     SDL_DestroyTexture(texture);
 }
