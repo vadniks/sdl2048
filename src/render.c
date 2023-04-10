@@ -145,9 +145,13 @@ void drawResetButton() {
     rect.w = rect.w * borderThickness - 4;
     rect.h = rect.h * borderThickness - 4;
 
-    SDL_SetRenderDrawColor(gRenderer, 56, 62, 73, 255); // TODO: display 'Reset' text
+    SDL_SetRenderDrawColor(gRenderer, 56, 62, 73, 255);
     SDL_RenderSetScale(gRenderer, 1, 1);
     SDL_RenderFillRect(gRenderer, &rect);
+
+    SDL_Texture* texture = makeTextTexture("Reset");
+    SDL_RenderCopy(gRenderer, texture, NULL, &rect);
+    SDL_DestroyTexture(texture);
 }
 
 void rendererDraw() {
