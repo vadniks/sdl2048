@@ -77,10 +77,10 @@ void shiftUp() {
             if (y > 0) gRendererFieldItems[x * COLUMNS + y] = IGNORED_NUM;
         }
     }
-    spawnNew(0);
 }
 
 void processKeyboardButtonPress(SDL_Keycode keycode) {
+    bool needToSpawnNew = true;
     switch (keycode) {
         case SDLK_w:
             shiftUp();
@@ -94,8 +94,11 @@ void processKeyboardButtonPress(SDL_Keycode keycode) {
         case SDLK_d:
 
             break;
-        default: break;
+        default:
+            needToSpawnNew = false;
+            break;
     }
+    if (needToSpawnNew) spawnNew(0);
 }
 
 bool isMouseWithinResetButtonArea() {
