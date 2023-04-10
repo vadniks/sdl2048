@@ -56,10 +56,7 @@ bool isMouseWithinResetButtonArea() {
 }
 
 void onResetButtonEventReceived(bool down) {
-#   define SET_RESET_BUTTON_PRESSED(x) *(gRendererResetButtonState->isPressed) = x;
-    SET_RESET_BUTTON_PRESSED(down)
-#   undef SET_RESET_BUTTON_PRESSED
-
+    *(gRendererResetButtonState->isPressed) = down;
     for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 0);
     *gRendererScore = 0;
 }
