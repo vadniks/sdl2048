@@ -112,11 +112,14 @@ void drawField() {
     };
     SDL_RenderSetScale(gRenderer, 1, 1);
 
-    for (unsigned row = 0, column; row < ROWS; row++) {
+    for (unsigned row = 0, column, item; row < ROWS; row++) {
         for (column = 0; column < COLUMNS; column++) {
+            item = gFieldItems[row * COLUMNS + column];
+            if (item == IGNORED_NUM) continue;
+
             rect.x = calcFieldNumCoord(row) + (signed) THICKNESS;
             rect.y = calcFieldNumCoord(column);
-            drawNum(&rect, (signed) gFieldItems[row * COLUMNS + column]);
+            drawNum(&rect, (signed) item);
         }
     }
 }

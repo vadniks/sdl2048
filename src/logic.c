@@ -69,10 +69,14 @@ void spawnNew(unsigned iteration) { // TODO: display newly spawned nums with dif
     spawnNew(iteration + (successful ? 1 : 0));
 }
 
+void shiftUp() {
+//    for (unsigned )
+}
+
 void processKeyboardButtonPress(SDL_Keycode keycode) {
     switch (keycode) {
         case SDLK_w:
-
+            shiftUp();
             break;
         case SDLK_a:
 
@@ -108,6 +112,7 @@ void onResetButtonEventReceived(bool down) {
 
     for (unsigned i = 0; i < ROWS * COLUMNS; gRendererFieldItems[i++] = 0);
     *gRendererScore = 0;
+    spawnNew(0);
 }
 
 void logicHandleEvent(SDL_Event* event) {
