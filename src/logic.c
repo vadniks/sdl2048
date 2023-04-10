@@ -73,9 +73,12 @@ void shiftUp() {
     bool hasSummed = false;
     for (int y = (signed) ROWS - 1, x, index = 0; y >= 0; y--) {
         for (x = 0; x < COLUMNS; x++, index++) {
-            SDL_Log("%u %u %u", x, y, gRendererFieldItems[x * COLUMNS + y]); // TODO
+//            SDL_Log("%d %d %d %d", x, y, gRendererFieldItems[x * COLUMNS + y], y - 1 >= 0 ? y - 1 : y); // TODO
+            if (y - 1 >= 0)
+                gRendererFieldItems[x * COLUMNS + y - 1] += gRendererFieldItems[x * COLUMNS + y];
+            if (y > 0) gRendererFieldItems[x * COLUMNS + y] = 0;
         }
-        SDL_Log("\n");
+//        SDL_Log("\n");
     }
 }
 
