@@ -38,8 +38,9 @@ void initGame() {
     spawnNew(0);
 }
 
-void spawnNew(unsigned iteration) { // TODO: display newly spawned nums with different color
+void spawnNew(unsigned iteration) {
     if (iteration >= NEW_NUMS_COUNT || iteration > gMaxSpawnIterations) return;
+    if (iteration == 0) rendererClearSpecialFieldItemMarks();
 
     unsigned* emptyIndexes = NULL;
     unsigned emptyIndexesSize = 0, x = 0, y = 0;
@@ -63,6 +64,7 @@ void spawnNew(unsigned iteration) { // TODO: display newly spawned nums with dif
     if (gRendererFieldItems[emptyIndex] == IGNORED_NUM) {
         successful = true;
         gRendererFieldItems[emptyIndex] = NEW_NUM_VALUE;
+        rendererMarkFieldItemSpecial(emptyIndex);
     }
 
     SDL_free(emptyIndexes);

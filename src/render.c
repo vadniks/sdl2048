@@ -16,6 +16,9 @@ SDL_Renderer* gRenderer = NULL;
 unsigned gScore = 0;
 bool gIsResetButtonPressed = false;
 SDL_Rect* gResetButtonGeometry = NULL;
+SDL_Color* gSpecialFieldItemColor = NULL;
+unsigned* gSpecialFieldItems = NULL;
+unsigned gSpecialFieldItemsSize = 0;
 
 void setDrawColorToDefault()
 { SDL_SetRenderDrawColor(gRenderer, 49, 54, 59, 255); }
@@ -44,6 +47,12 @@ void rendererInit(SDL_Renderer* renderer) {
     gResetButtonGeometry->y = (signed) (((THICKNESS * 2) + 30) / RESET_BUTTON_BORDER_THICKNESS);
     gResetButtonGeometry->w = (signed) (RESET_BUTTON_WIDTH / RESET_BUTTON_BORDER_THICKNESS);
     gResetButtonGeometry->h = (signed) (RESET_BUTTON_HEIGHT / RESET_BUTTON_BORDER_THICKNESS);
+
+    gSpecialFieldItemColor = SDL_malloc(sizeof *gSpecialFieldItemColor);
+    gSpecialFieldItemColor->r = 30;
+    gSpecialFieldItemColor->g = 30;
+    gSpecialFieldItemColor->b = 30;
+    gSpecialFieldItemColor->a = 255;
 }
 
 unsigned* rendererFieldItems() { return gFieldItems; }
@@ -58,6 +67,17 @@ RendererResetButtonState* rendererResetButtonState() {
     return state;
 }
 
+void rendererMarkFieldItemSpecial(unsigned index) {
+    gSpecialFieldItems = SDL_realloc(gSpecialFieldItems, sizeof(unsigned) * ++gSpecialFieldItemsSize);
+    gSpecialFieldItems[gSpecialFieldItemsSize - 1] = index;
+}
+
+void rendererClearSpecialFieldItemMarks() {
+    SDL_free(gSpecialFieldItems);
+    gSpecialFieldItems = NULL;
+    gSpecialFieldItemsSize = 0;
+}
+
 void drawWindowFrame() {
     SDL_Rect rect = (SDL_Rect) {
         0, 0,
@@ -70,8 +90,8 @@ void drawWindowFrame() {
     SDL_RenderDrawRect(gRenderer, &rect);
 }
 
-SDL_Texture* makeTextTexture(char* text) {
-    SDL_Surface* surface = TTF_RenderText_Solid(gFont, text, *gTextColor);
+SDL_Texture* makeTextTexture(char* text, SDL_Color* color) {
+    SDL_Surface* surface = TTF_RenderText_Solid(gFont, text, *color);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
     SDL_FreeSurface(surface);
     return texture;
@@ -83,11 +103,11 @@ char* numToText(int num) {
     return text;
 }
 
-void drawNum(SDL_Rect* rect, int num) {
+void drawNum(SDL_Rect* rect, int num, SDL_Color* color) {
     assert(num >= 0 && num <= MAX_NUM_VALUE);
 
     char* text = numToText(num);
-    SDL_Texture* texture = makeTextTexture(text);
+    SDL_Texture* texture = makeTextTexture(text, color);
     SDL_RenderCopy(gRenderer, texture, NULL, rect);
 
     SDL_DestroyTexture(texture);
@@ -96,6 +116,13 @@ void drawNum(SDL_Rect* rect, int num) {
 
 int calcFieldNumCoord(unsigned logicalCoord)
 { return (signed) ((logicalCoord * gTileSize / THICKNESS + gFieldStart) * THICKNESS); }
+
+bool isSpecialFieldItem(unsigned index) {
+    for (unsigned i = 0; i < gSpecialFieldItemsSize; i++)
+        if (gSpecialFieldItems[i] == index)
+            return true;
+    return false;
+}
 
 void drawField() {
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
@@ -114,14 +141,15 @@ void drawField() {
     };
     SDL_RenderSetScale(gRenderer, 1, 1);
 
-    for (unsigned row = 0, column, item; row < ROWS; row++) {
+    for (unsigned row = 0, column, index, item; row < ROWS; row++) {
         for (column = 0; column < COLUMNS; column++) {
-            item = gFieldItems[row * COLUMNS + column];
+            index = row * COLUMNS + column;
+            item = gFieldItems[index];
             if (item == IGNORED_NUM) continue;
 
             rect.x = calcFieldNumCoord(row) + (signed) THICKNESS;
             rect.y = calcFieldNumCoord(column);
-            drawNum(&rect, (signed) item);
+            drawNum(&rect, (signed) item, isSpecialFieldItem(index) ? gSpecialFieldItemColor : gTextColor);
         }
     }
 }
@@ -141,7 +169,7 @@ void drawCurrentScore() {
     SDL_strlcat(buffer, "Current score: ", maxLength);
     SDL_strlcat(buffer, scoreText, maxLength);
 
-    SDL_Texture* texture = makeTextTexture(buffer);
+    SDL_Texture* texture = makeTextTexture(buffer, gTextColor);
     SDL_RenderSetScale(gRenderer, 1, 1);
     SDL_RenderCopy(gRenderer, texture, NULL, &rect);
 
@@ -174,7 +202,7 @@ void drawResetButton() {
     SDL_RenderSetScale(gRenderer, 1, 1);
     SDL_RenderFillRect(gRenderer, rect);
 
-    SDL_Texture* texture = makeTextTexture("Reset");
+    SDL_Texture* texture = makeTextTexture("Reset", gTextColor);
     SDL_RenderCopy(gRenderer, texture, NULL, rect);
     SDL_DestroyTexture(texture);
     SDL_free(rect);
@@ -188,7 +216,7 @@ void drawTitle() {
         (signed) CURRENT_SCORE_TEXT_HEIGHT
     };
 
-    SDL_Texture* texture = makeTextTexture("2048 clone");
+    SDL_Texture* texture = makeTextTexture("2048 clone", gTextColor);
     SDL_RenderCopy(gRenderer, texture, NULL, &rect);
     SDL_DestroyTexture(texture);
 }
@@ -211,5 +239,7 @@ void rendererClean() {
     TTF_CloseFont(gFont);
     SDL_free(gTextColor);
     SDL_free(gResetButtonGeometry);
+    SDL_free(gSpecialFieldItemColor);
+    SDL_free(gSpecialFieldItems);
     TTF_Quit();
 }

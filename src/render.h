@@ -16,5 +16,7 @@ void rendererInit(SDL_Renderer* renderer);
 unsigned* rendererFieldItems();
 unsigned* rendererScore();
 RendererResetButtonState* rendererResetButtonState();
+void rendererMarkFieldItemSpecial(unsigned index);
+void rendererClearSpecialFieldItemMarks();
 void rendererDraw();
 void rendererClean();
