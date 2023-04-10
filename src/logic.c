@@ -71,7 +71,12 @@ void spawnNew(unsigned iteration) { // TODO: display newly spawned nums with dif
 
 void shiftUp() {
     bool hasSummed = false;
-    // TODO
+    for (int y = (signed) ROWS - 1, x, index = 0; y >= 0; y--) {
+        for (x = 0; x < COLUMNS; x++, index++) {
+            SDL_Log("%u %u %u", x, y, gRendererFieldItems[x * COLUMNS + y]); // TODO
+        }
+        SDL_Log("\n");
+    }
 }
 
 void processKeyboardButtonPress(SDL_Keycode keycode) {
