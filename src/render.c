@@ -1,6 +1,7 @@
 
 #include <sdl_ttf/SDL_ttf.h>
 #include <assert.h>
+#include <stdbool.h>
 #include "render.h"
 
 const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048;
@@ -12,6 +13,7 @@ TTF_Font* gFont = NULL;
 SDL_Color* gTextColor = NULL;
 SDL_Renderer* gRenderer = NULL;
 unsigned gScore = 0;
+bool gIsResetButtonPressed = false;
 
 void setDrawColorToDefault()
 { SDL_SetRenderDrawColor(gRenderer, 49, 54, 59, 255); }
@@ -145,7 +147,12 @@ void drawResetButton() {
     rect.w = rect.w * borderThickness - 4;
     rect.h = rect.h * borderThickness - 4;
 
-    SDL_SetRenderDrawColor(gRenderer, 56, 62, 73, 255);
+#   define SET_COLOR(r, g, b) SDL_SetRenderDrawColor(gRenderer, r, g, b, 255)
+    gIsResetButtonPressed
+        ? SET_COLOR(49, 54, 59)
+        : SET_COLOR(56, 62, 73);
+#   undef SET_COLOR
+
     SDL_RenderSetScale(gRenderer, 1, 1);
     SDL_RenderFillRect(gRenderer, &rect);
 
