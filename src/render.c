@@ -150,10 +150,13 @@ void drawResetButton() {
 
     SDL_Rect* rect = SDL_malloc(sizeof *rect);
     SDL_memcpy(rect, gResetButtonGeometry, sizeof *rect);
-    rect->x = rect->x * (signed) RESET_BUTTON_BORDER_THICKNESS + 2;
-    rect->y = rect->y * (signed) RESET_BUTTON_BORDER_THICKNESS + 2;
-    rect->w = rect->w * (signed) RESET_BUTTON_BORDER_THICKNESS - 4;
-    rect->h = rect->h * (signed) RESET_BUTTON_BORDER_THICKNESS - 4;
+
+#   define CHANGE_VALUE(x, y) rect->x = rect->x * (signed) RESET_BUTTON_BORDER_THICKNESS + (y);
+    CHANGE_VALUE(x, 2)
+    CHANGE_VALUE(y, 2)
+    CHANGE_VALUE(w, -4)
+    CHANGE_VALUE(h, -4)
+#   undef CHANGE_VALUE
 
 #   define SET_COLOR(r, g, b) SDL_SetRenderDrawColor(gRenderer, r, g, b, 255)
     gIsResetButtonPressed
