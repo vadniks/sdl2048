@@ -45,11 +45,11 @@ unsigned coordsToIndex(unsigned row, unsigned column) {
 
 // TODO: display newly spawned nums with different color
 
-#define NUM_AT(r, c) gRendererFieldItems[coordsToIndex(r, c)]
+#define NUM_AT(x, y) gRendererFieldItems[coordsToIndex(x, y)]
 
 typedef struct {
-    unsigned row;
-    unsigned column;
+    unsigned x;
+    unsigned y;
 } Coords;
 
 void spawnNew(unsigned iteration) {
@@ -61,18 +61,19 @@ void spawnNew(unsigned iteration) {
         gRendererFieldItems[i] = i;
 
     Coords* emptyCoords = NULL;
-    unsigned emptyCoordsSize = 0, r = 0, c = 0;
+    unsigned emptyCoordsSize = 0, x = 0, y = 0;
     for (unsigned i = 0; i < gNumsCount; i++) {
-        SDL_Log("%u %u %u %u\n", i, r, c, gRendererFieldItems[i]);
-        if (i > 0 && i % COLUMNS == 0) {
-            r = 0; // TODO: clean up
-            c++;
-        }
-        r++;
-        if (gRendererFieldItems[i] != IGNORED_NUM) continue;
-
+        if (gRendererFieldItems[i] != IGNORED_NUM) {
+            SDL_Log("%u %u %u\n", i, x, y);
 //        emptyCoords = SDL_realloc(emptyCoords, ++emptyCoordsSize);
 //        emptyCoords[emptyCoordsSize - 1] = (Coords) {  };
+        }
+
+        if (i > 0 && i % COLUMNS == 0) {
+            y = 0;
+            x++;
+        }
+        y++;
     }
 
 #   define RAND rand() % ROWS
@@ -82,7 +83,7 @@ void spawnNew(unsigned iteration) {
     bool successful = false;
     if (NUM_AT(row, column) == IGNORED_NUM) {
         successful = true;
-        NUM_AT(row, column) = NEW_NUM_VALUE;
+//        NUM_AT(row, column) = NEW_NUM_VALUE;
     }
 
     if (emptyCoordsSize > 0)
