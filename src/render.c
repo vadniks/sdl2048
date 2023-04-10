@@ -4,7 +4,8 @@
 #include "render.h"
 
 const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048,
-    RESET_BUTTON_WIDTH = 80, RESET_BUTTON_HEIGHT = 30, RESET_BUTTON_BORDER_THICKNESS = 2, IGNORED_NUM = 0;
+    RESET_BUTTON_WIDTH = 80, RESET_BUTTON_HEIGHT = 30, RESET_BUTTON_BORDER_THICKNESS = 2, IGNORED_NUM = 0,
+    CURRENT_SCORE_TEXT_WIDTH = 175, CURRENT_SCORE_TEXT_HEIGHT = 30;
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
 
 unsigned* gFieldItems = NULL;
@@ -128,7 +129,8 @@ void drawCurrentScore() {
     SDL_Rect rect = (SDL_Rect) {
         (signed) (gFieldSize + THICKNESS),
         (signed) THICKNESS,
-        175, 30
+        (signed) CURRENT_SCORE_TEXT_WIDTH,
+        (signed) CURRENT_SCORE_TEXT_HEIGHT
     };
 
     const unsigned scoreMsgLength = 15, maxLength = scoreMsgLength + MAX_NUM_LENGTH + 1;
@@ -177,6 +179,21 @@ void drawResetButton() {
     SDL_free(rect);
 }
 
+void drawTitle() {
+    SDL_Texture* texture = makeTextTexture("2048 clone");
+
+
+    SDL_Rect rect = (SDL_Rect) {
+        (signed) (gFieldSize + THICKNESS + (CURRENT_SCORE_TEXT_WIDTH / 2)),
+        (signed) (gHeight - THICKNESS - 30),
+        (signed) CURRENT_SCORE_TEXT_WIDTH,
+        (signed) CURRENT_SCORE_TEXT_HEIGHT
+    };
+
+    SDL_RenderCopy(gRenderer, texture, NULL, &rect);
+    SDL_DestroyTexture(texture);
+}
+
 void rendererDraw() {
     setDrawColorToDefault();
     SDL_RenderClear(gRenderer);
@@ -185,6 +202,7 @@ void rendererDraw() {
     drawField();
     drawCurrentScore();
     drawResetButton();
+    drawTitle();
 
     SDL_RenderPresent(gRenderer);
 }

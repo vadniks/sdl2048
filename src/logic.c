@@ -70,7 +70,8 @@ void spawnNew(unsigned iteration) { // TODO: display newly spawned nums with dif
 }
 
 void shiftUp() {
-//    for (unsigned )
+    bool hasSummed = false;
+    // TODO
 }
 
 void processKeyboardButtonPress(SDL_Keycode keycode) {

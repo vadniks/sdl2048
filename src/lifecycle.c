@@ -16,7 +16,7 @@ bool gameInit() {
         return false;
 
     gWindow = SDL_CreateWindow(
-        "Title",
+        "2048 clone",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         (signed) WIDTH,
