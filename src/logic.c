@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <pthread.h>
 #include "logic.h"
 
 const unsigned NEW_NUMS_COUNT = 2, NEW_NUM_VALUE = 2;
@@ -12,6 +13,8 @@ RenderResetButtonState* gLogicResetButtonState = NULL;
 unsigned gLogicMaxSpawnIterations = 0;
 unsigned gLogicNumsCount = 0;
 unsigned* gLogicNumsShifted = NULL;
+void (*gLogicShowWinDialogFun)(void) = NULL;
+pthread_t* gLogicDialogThread = NULL;
 
 void logicInitGame();
 
@@ -19,12 +22,14 @@ void logicInit(
     bool* isGameRunning,
     unsigned* nums,
     unsigned* score,
-    RenderResetButtonState* resetButtonState
+    RenderResetButtonState* resetButtonState,
+    void (*showWinDialogFun)(void)
 ) {
     gLogicIsRunning = isGameRunning;
     gLogicNums = nums;
     gLogicScore = score;
     gLogicResetButtonState = resetButtonState;
+    gLogicShowWinDialogFun = showWinDialogFun;
 
     logicInitGame();
 }
@@ -37,6 +42,7 @@ void logicInitGame() {
     gLogicMaxSpawnIterations = ROWS * COLUMNS - 1;
     gLogicNumsCount = ROWS * COLUMNS;
     gLogicNumsShifted = SDL_calloc(ROWS * COLUMNS, sizeof *gLogicNumsShifted);
+    gLogicDialogThread = SDL_malloc(sizeof *gLogicDialogThread);
 
     logicSpawnNew(0);
 }
@@ -150,6 +156,19 @@ void logicShiftNumsHorizontally(bool left) {
     }
 }
 
+bool logicFindEndNum() {
+    for (unsigned i = 0; i < gLogicNumsCount; i++)
+        if (gLogicNums[i] == END_NUM)
+            return true;
+    return false;
+}
+
+void* gLogicShowWindDialogAndExit(__attribute__((unused)) void* _) {
+    gLogicShowWinDialogFun();
+    *gLogicIsRunning = false;
+    return NULL;
+}
+
 void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
     bool needToSpawnNew = true;
     logicUpdateShiftedNums();
@@ -172,6 +191,8 @@ void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
             break;
     }
 
+    if (logicFindEndNum())
+        pthread_create(gLogicDialogThread, NULL, &gLogicShowWindDialogAndExit, NULL);
     if (needToSpawnNew) logicSpawnNew(0);
 }
 
@@ -220,4 +241,5 @@ void logicHandleEvent(SDL_Event* event) {
 void logicClean() {
     SDL_free(gLogicResetButtonState);
     SDL_free(gLogicNumsShifted);
+    SDL_free(gLogicDialogThread);
 }

@@ -8,7 +8,8 @@ void logicInit(
     bool* isGameRunning,
     unsigned* nums,
     unsigned* score,
-    RenderResetButtonState* resetButtonState
+    RenderResetButtonState* resetButtonState,
+    void (*showWinDialogFun)(void)
 );
 void logicHandleEvent(SDL_Event* event);
 void logicClean();

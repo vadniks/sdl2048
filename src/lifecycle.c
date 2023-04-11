@@ -12,6 +12,7 @@ bool gLifecycleRunning = false;
 SDL_TimerID gLifecycleUpdateTimerId = 0;
 
 unsigned lifecycleUpdate(unsigned, void*);
+void lifecycleShowWinDialog();
 
 bool lifecycleInit() {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER))
@@ -31,13 +32,20 @@ bool lifecycleInit() {
     if (!gLifecycleRenderer) return false;
 
     renderInit(gLifecycleRenderer);
-    logicInit(&gLifecycleRunning, renderFieldItems(), renderScore(), renderResetButtonState());
+    logicInit(&gLifecycleRunning, renderFieldItems(), renderScore(), renderResetButtonState(), &lifecycleShowWinDialog);
 
     gLifecycleUpdateTimerId = SDL_AddTimer(UPDATE_DELAY, &lifecycleUpdate, NULL);
 
     gLifecycleRunning = true;
     return true;
 }
+
+void lifecycleShowWinDialog() { SDL_ShowSimpleMessageBox(
+    SDL_MESSAGEBOX_INFORMATION,
+    "Info",
+    "You have won!",
+    gLifecycleWindow
+); }
 
 unsigned lifecycleUpdate(__attribute__((unused)) unsigned _, __attribute__((unused)) void* __) { // NOLINT(bugprone-reserved-identifier)
     renderOnUpdate();
