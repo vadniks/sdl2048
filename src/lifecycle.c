@@ -4,7 +4,7 @@
 #include "render.h"
 #include "logic.h"
 
-const unsigned WIDTH = 800, HEIGHT = WIDTH / 2, UPDATE_DELAY = 1000 / 255;
+const unsigned WIDTH = 800, HEIGHT = WIDTH / 2, UPDATE_DELAY = 1000 / 5;
 
 SDL_Window* gLifecycleWindow = NULL;
 SDL_Renderer* gLifecycleRenderer = NULL;

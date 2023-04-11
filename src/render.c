@@ -85,16 +85,15 @@ void renderClearSpecialItemMarks() {
 }
 
 void renderNextFrameColor() {
-    unsigned current = gRenderFrameColor & BLUE_MASK;
+    const unsigned r = (gRenderFrameColor & RED_MASK) >> RED_SHIFT,
+        g = (gRenderFrameColor & GREEN_MASK) >> GREEN_SHIFT,
+        b = (gRenderFrameColor & BLUE_MASK) >> BLUE_SHIFT,
+        x = 0x00000100,
+        m = 0x00000001;
 
-    SDL_Log("0x%08x\n", current);
-
-    if (current >= 0x0000ff00) current = 0x00000000;
-    else current += 0x00000100;
-
-    gRenderFrameColor |= current << RED_SHIFT;
-    gRenderFrameColor |= current << GREEN_SHIFT;
-    gRenderFrameColor |= current << BLUE_SHIFT; // TODO: make it work
+    gRenderFrameColor |= (r + m < x ? r + m : 0x0) << RED_SHIFT;
+    gRenderFrameColor |= 0 << GREEN_SHIFT;
+    gRenderFrameColor |= 0 << BLUE_SHIFT; // TODO: make it work
 
     SDL_Log("0x%08x 0x%08x 0x%08x 0x%08x\n", gRenderFrameColor, (gRenderFrameColor & RED_MASK) >> RED_SHIFT, (gRenderFrameColor & GREEN_MASK) >> GREEN_SHIFT, (gRenderFrameColor & BLUE_MASK) >> BLUE_SHIFT);
 }
