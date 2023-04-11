@@ -85,17 +85,17 @@ void renderClearSpecialItemMarks() {
 }
 
 void renderNextFrameColor() {
-    const unsigned r = (gRenderFrameColor & RED_MASK) >> RED_SHIFT,
-        g = (gRenderFrameColor & GREEN_MASK) >> GREEN_SHIFT,
-        b = (gRenderFrameColor & BLUE_MASK) >> BLUE_SHIFT,
-        x = 0x00000100,
-        m = 0x00000001;
+    const unsigned r = (gRenderFrameColor & RED_MASK) >> RED_SHIFT, x = 0x000000ff, m = 0x00000001;
 
-    gRenderFrameColor |= (r + m < x ? r + m : 0x0) << RED_SHIFT;
-    gRenderFrameColor |= 0 << GREEN_SHIFT;
-    gRenderFrameColor |= 0 << BLUE_SHIFT; // TODO: make it work
-
-    SDL_Log("0x%08x 0x%08x 0x%08x 0x%08x\n", gRenderFrameColor, (gRenderFrameColor & RED_MASK) >> RED_SHIFT, (gRenderFrameColor & GREEN_MASK) >> GREEN_SHIFT, (gRenderFrameColor & BLUE_MASK) >> BLUE_SHIFT);
+    if (r < x) {
+        gRenderFrameColor |= (r + m) << RED_SHIFT;
+        gRenderFrameColor |= (r + m) << GREEN_SHIFT;
+        gRenderFrameColor |= (r + m) << BLUE_SHIFT;
+    } else {
+        gRenderFrameColor &= 0 << RED_SHIFT;
+        gRenderFrameColor &= 0 << GREEN_SHIFT;
+        gRenderFrameColor &= 0 << BLUE_SHIFT;
+    }
 }
 
 void renderDrawWindowFrame() {
