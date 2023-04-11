@@ -105,7 +105,7 @@ void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
     bool needToSpawnNew = true;
     switch (keycode) {
         case SDLK_w:
-//            logicShiftNumsUp();
+            logicWithScoreCount(&logicBeforeFillIndexUp, &logicShiftNumsUp);
             break;
         case SDLK_a:
             logicWithScoreCount(&logicBeforeFillIndexLeft, &logicShiftNumsLeft);
