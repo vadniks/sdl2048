@@ -23,7 +23,7 @@ SDL_Rect* gRenderResetButtonGeometry = NULL;
 SDL_Color* gRenderSpecialItemColor = NULL;
 unsigned* gRenderSpecialItems = NULL;
 unsigned gRenderSpecialItemsSize = 0;
-unsigned gRenderFrameColor = 0x00000000;
+unsigned char gRenderFrameColorComponent = 0;
 bool gRenderFrameColorChangeDirection = false;
 
 void renderSetDrawColorToDefault()
@@ -86,22 +86,14 @@ void renderClearSpecialItemMarks() {
 }
 
 void renderNextFrameColor() {
-    const unsigned r = (gRenderFrameColor & RED_MASK) >> RED_SHIFT, x = 0x000000ff, m = 0x0000005;
-
-    if (!gRenderFrameColorChangeDirection && r == x || gRenderFrameColorChangeDirection && r <= m)
+    if (!gRenderFrameColorChangeDirection && gRenderFrameColorComponent == 255
+        || gRenderFrameColorChangeDirection && gRenderFrameColorComponent == 0)
         gRenderFrameColorChangeDirection = !gRenderFrameColorChangeDirection;
 
-    if (!gRenderFrameColorChangeDirection) {
-        gRenderFrameColor |= (r + m) << RED_SHIFT;
-        gRenderFrameColor |= (r + m) << GREEN_SHIFT;
-        gRenderFrameColor |= (r + m) << BLUE_SHIFT;
-    } else {
-        gRenderFrameColor = 0;
-
-        gRenderFrameColor |= (r - m) << RED_SHIFT;
-        gRenderFrameColor |= (r - m) << GREEN_SHIFT;
-        gRenderFrameColor |= (r - m) << BLUE_SHIFT;
-    }
+    if (!gRenderFrameColorChangeDirection)
+        gRenderFrameColorComponent += 5;
+    else
+        gRenderFrameColorComponent -= 5;
 }
 
 void renderDrawWindowFrame() {
@@ -113,9 +105,9 @@ void renderDrawWindowFrame() {
 
     SDL_SetRenderDrawColor(
         gRenderRenderer,
-        (gRenderFrameColor & RED_MASK) >> RED_SHIFT,
-        (gRenderFrameColor & GREEN_MASK) >> GREEN_SHIFT,
-        (gRenderFrameColor & BLUE_MASK) >> BLUE_SHIFT,
+        gRenderFrameColorComponent,
+        gRenderFrameColorComponent,
+        gRenderFrameColorComponent,
         255
     );
 
