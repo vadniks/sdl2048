@@ -9,7 +9,10 @@ const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 5, MAX_
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
 
 unsigned* gRenderItems = NULL;
-unsigned gRenderWidth = 0, gRenderHeight = 0, gRenderFieldSize = 0, gRenderTileSize = 0, gRenderFieldStart = 0, gRenderFieldEnd = 0;
+
+unsigned gRenderWidth = 0, gRenderHeight = 0, gRenderFieldSize = 0, gRenderTileSize = 0, gRenderFieldStart = 0,
+    gRenderFieldEnd = 0;
+
 TTF_Font* gRenderFont = NULL;
 SDL_Color* gRenderTextColor = NULL;
 SDL_Renderer* gRenderRenderer = NULL;
@@ -149,8 +152,7 @@ void renderDrawField() {
 
             rect.x = renderCalcFieldNumCoord(row) + (signed) THICKNESS;
             rect.y = renderCalcFieldNumCoord(column);
-            renderDrawNum(&rect, (signed) item,
-                          renderIsSpecialFieldItem(index) ? gRenderSpecialItemColor : gRenderTextColor);
+            renderDrawNum(&rect, (signed) item, renderIsSpecialFieldItem(index) ? gRenderSpecialItemColor : gRenderTextColor);
         }
     }
 }
