@@ -69,37 +69,35 @@ void logicSpawnNew(unsigned iteration) {
     logicSpawnNew(iteration + (successful ? 1 : 0));
 }
 
-void logicShiftNumsUp() {
+void logicWithScoreCount(unsigned (*beforeFillIndex)(unsigned), void (*shift)(void)) {
     unsigned before[COLUMNS];
-    for (unsigned i = 0; i < COLUMNS; before[i] = gLogicNums[i * COLUMNS], i++);
+    for (unsigned i = 0; i < COLUMNS; before[i] = gLogicNums[beforeFillIndex(i)], i++);
+    shift();
+    for (unsigned i = 0, index; i < COLUMNS; i++) {
+        index = beforeFillIndex(i);
+        if ((before[i] + IGNORED_NUM) < gLogicNums[index]) (*gLogicScore)++;
+    }
+}
 
+unsigned logicBeforeFillIndexUp(unsigned i) { return i * COLUMNS; }
+
+void logicShiftNumsUp() {
     for (int y = (signed) ROWS - 1, x; y >= 0; y--) {
         for (x = 0; x < COLUMNS; x++) {
             if (y - 1 >= 0) gLogicNums[x * COLUMNS + y - 1] *= gLogicNums[x * COLUMNS + y];
             if (y > 0) gLogicNums[x * COLUMNS + y] = IGNORED_NUM;
         }
     }
-
-    for (unsigned i = 0, index; i < COLUMNS; i++) {
-        index = i * COLUMNS;
-        if ((before[i] + IGNORED_NUM) < gLogicNums[index]) (*gLogicScore)++;
-    }
 }
 
-void logicShiftNumsLeft() {
-    unsigned before[ROWS];
-    for (unsigned j = 0; j < ROWS; before[j] = gLogicNums[j], j++);
+unsigned logicBeforeFillIndexLeft(unsigned i) { return i; }
 
+void logicShiftNumsLeft() {
     for (int x = (signed) COLUMNS - 1, y; x >= 0 ; x--) {
         for (y = 0; y < ROWS; y++) {
             if (x - 1 >= 0) gLogicNums[(x - 1) * COLUMNS + y] *= gLogicNums[x * COLUMNS + y];
             if (x > 0) gLogicNums[x * COLUMNS + y] = IGNORED_NUM;
         }
-    }
-
-    for (unsigned j = 0, index; j < ROWS; j++) {
-        index = j;
-        if ((before[j] + IGNORED_NUM) < gLogicNums[index]) (*gLogicScore)++;
     }
 }
 
@@ -110,7 +108,7 @@ void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
 //            logicShiftNumsUp();
             break;
         case SDLK_a:
-            logicShiftNumsLeft();
+            logicWithScoreCount(&logicBeforeFillIndexLeft, &logicShiftNumsLeft);
             break;
         case SDLK_s:
 
