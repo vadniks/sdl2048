@@ -5,7 +5,8 @@
 
 const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048,
     RESET_BUTTON_WIDTH = 80, RESET_BUTTON_HEIGHT = 30, RESET_BUTTON_BORDER_THICKNESS = 2, IGNORED_NUM = 1,
-    CURRENT_SCORE_TEXT_WIDTH = 175, CURRENT_SCORE_TEXT_HEIGHT = 30;
+    CURRENT_SCORE_TEXT_WIDTH = 175, CURRENT_SCORE_TEXT_HEIGHT = 30, RED_MASK = 0xff000000, GREEN_MASK = 0x00ff0000,
+    BLUE_MASK = 0x0000ff00;
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
 
 unsigned* gRenderItems = NULL;
@@ -22,6 +23,7 @@ SDL_Rect* gRenderResetButtonGeometry = NULL;
 SDL_Color* gRenderSpecialItemColor = NULL;
 unsigned* gRenderSpecialItems = NULL;
 unsigned gRenderSpecialItemsSize = 0;
+unsigned gRenderFrameColor = 0x00000000;
 
 void renderSetDrawColorToDefault()
 { SDL_SetRenderDrawColor(gRenderRenderer, 49, 54, 59, 255); }
@@ -82,6 +84,19 @@ void renderClearSpecialItemMarks() {
     gRenderSpecialItemsSize = 0;
 }
 
+void renderNextFrameColor() {
+    unsigned current = gRenderFrameColor & RED_MASK;
+
+    if (current == 0x000000ff) current = 0x00000000;
+    else current += 0x00000001;
+
+    gRenderFrameColor |= 0x000000ab << 24;
+    gRenderFrameColor |= 0x000000cd << 16;
+    gRenderFrameColor |= 0x000000ef << 8; // TODO
+
+    SDL_Log("0x%08x\n", gRenderFrameColor);
+}
+
 void renderDrawWindowFrame() {
     SDL_Rect rect = (SDL_Rect) {
         0, 0,
@@ -89,9 +104,17 @@ void renderDrawWindowFrame() {
         (signed) (gRenderHeight / THICKNESS)
     };
 
-    SDL_SetRenderDrawColor(gRenderRenderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(
+        gRenderRenderer,
+        gRenderFrameColor & RED_MASK,
+        gRenderFrameColor & GREEN_MASK,
+        gRenderFrameColor & BLUE_MASK,
+        255
+    );
+
     SDL_RenderSetScale(gRenderRenderer, (float) THICKNESS, (float) THICKNESS);
     SDL_RenderDrawRect(gRenderRenderer, &rect);
+    SDL_SetRenderDrawColor(gRenderRenderer, 0, 0, 0, 255);
 }
 
 SDL_Texture* renderMakeTextTexture(char* text, SDL_Color* color) {

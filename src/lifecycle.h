@@ -3,12 +3,10 @@
 
 #include <stdbool.h>
 
-extern const unsigned WIDTH;
-extern const unsigned HEIGHT;
+extern const unsigned WIDTH, HEIGHT;
 
-bool gameInit();
-void gameHandleEvents();
-void gameUpdate();
-void gameRender();
-void gameClean();
-bool gameLoop();
+bool lifecycleInit();
+void lifecycleHandleEvents();
+void lifecycleRender();
+void lifecycleClean();
+bool lifecycleLoop();

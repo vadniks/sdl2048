@@ -1,4 +1,4 @@
 
 #include "lifecycle.h"
 
-int main() { return gameLoop() ? 0 : 1; }
+int main() { return lifecycleLoop() ? 0 : 1; }

@@ -4,15 +4,17 @@
 #include "render.h"
 #include "logic.h"
 
-const unsigned WIDTH = 800;
-const unsigned HEIGHT = WIDTH / 2;
+const unsigned WIDTH = 800, HEIGHT = WIDTH / 2, UPDATE_DELAY = 1000 / 255;
 
 SDL_Window* gLifecycleWindow = NULL;
 SDL_Renderer* gLifecycleRenderer = NULL;
 bool gLifecycleRunning = false;
+SDL_TimerID gLifecycleUpdateTimerId = 0;
 
-bool gameInit() {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
+unsigned lifecycleUpdate(unsigned, void*);
+
+bool lifecycleInit() {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER))
         return false;
 
     gLifecycleWindow = SDL_CreateWindow(
@@ -31,23 +33,27 @@ bool gameInit() {
     renderInit(gLifecycleRenderer);
     logicInit(&gLifecycleRunning, renderFieldItems(), renderScore(), renderResetButtonState());
 
+    gLifecycleUpdateTimerId = SDL_AddTimer(UPDATE_DELAY, &lifecycleUpdate, NULL);
+
     gLifecycleRunning = true;
     return true;
 }
 
-void gameHandleEvents() {
+unsigned lifecycleUpdate(__attribute__((unused)) unsigned _, __attribute__((unused)) void* __) { // NOLINT(bugprone-reserved-identifier)
+    renderNextFrameColor();
+    return gLifecycleRunning ? UPDATE_DELAY : 0;
+}
+
+void lifecycleHandleEvents() {
     SDL_Event event;
     if (!SDL_PollEvent(&event)) return;
     logicHandleEvent(&event);
 }
 
-void gameUpdate() {
-    // TODO: make fixed update (continuous timer task with fixed delay) or remove this at all
-}
+void lifecycleRender() { renderDraw(); }
 
-void gameRender() { renderDraw(); }
-
-void gameClean() {
+void lifecycleClean() {
+    SDL_RemoveTimer(gLifecycleUpdateTimerId);
     renderClean();
     logicClean();
     SDL_DestroyRenderer(gLifecycleRenderer);
@@ -55,19 +61,18 @@ void gameClean() {
     SDL_Quit();
 }
 
-bool gameLoop() {
-    if (!gameInit()) {
-        gameClean();
+bool lifecycleLoop() {
+    if (!lifecycleInit()) {
+        lifecycleClean();
         return false;
     }
 
     while (gLifecycleRunning) {
-        gameHandleEvents();
-        gameUpdate();
-        gameRender();
+        lifecycleHandleEvents();
+        lifecycleRender();
         SDL_Delay(1000 / 60);
     }
 
-    gameClean();
+    lifecycleClean();
     return true;
 }
