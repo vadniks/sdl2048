@@ -18,6 +18,6 @@ unsigned* renderScore();
 RenderResetButtonState* renderResetButtonState();
 void renderMarkItemSpecial(unsigned index);
 void renderClearSpecialItemMarks();
-void renderNextFrameColor();
+void renderOnUpdate();
 void renderDraw();
 void renderClean();

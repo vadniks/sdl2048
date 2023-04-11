@@ -40,7 +40,7 @@ bool lifecycleInit() {
 }
 
 unsigned lifecycleUpdate(__attribute__((unused)) unsigned _, __attribute__((unused)) void* __) { // NOLINT(bugprone-reserved-identifier)
-    renderNextFrameColor();
+    renderOnUpdate();
     return gLifecycleRunning ? UPDATE_DELAY : 0;
 }
 

@@ -24,6 +24,10 @@ unsigned* gRenderSpecialItems = NULL;
 unsigned gRenderSpecialItemsSize = 0;
 unsigned char gRenderFrameColorComponent = 0;
 bool gRenderFrameColorChangeDirection = false;
+unsigned gRenderTitleXPos = 0;
+bool gRenderTitleMovementDirection = false;
+unsigned gRenderTitleOriginalXPos = 0;
+unsigned gRenderTileOffset = 0;
 
 void renderSetDrawColorToDefault()
 { SDL_SetRenderDrawColor(gRenderRenderer, 49, 54, 59, 255); }
@@ -58,6 +62,10 @@ void renderInit(SDL_Renderer* renderer) {
     gRenderSpecialItemColor->g = 30;
     gRenderSpecialItemColor->b = 30;
     gRenderSpecialItemColor->a = 255;
+
+    gRenderTitleOriginalXPos = gRenderFieldSize * 3 / 2 + THICKNESS - (CURRENT_SCORE_TEXT_WIDTH / 2);
+    gRenderTitleXPos = gRenderTitleOriginalXPos;
+    gRenderTileOffset = CURRENT_SCORE_TEXT_WIDTH / 2;
 }
 
 unsigned* renderFieldItems() { return gRenderItems; }
@@ -93,6 +101,22 @@ void renderNextFrameColor() {
         gRenderFrameColorComponent += 5;
     else
         gRenderFrameColorComponent -= 5;
+}
+
+void renderNextTitleXPos() {
+    if (!gRenderTitleMovementDirection && gRenderTitleXPos == gRenderTitleOriginalXPos - gRenderTileOffset
+        || gRenderTitleMovementDirection && gRenderTitleXPos == gRenderTitleOriginalXPos + gRenderTileOffset)
+        gRenderTitleMovementDirection = !gRenderTitleMovementDirection;
+
+    if (!gRenderTitleMovementDirection)
+        gRenderTitleXPos--;
+    else
+        gRenderTitleXPos++;
+}
+
+void renderOnUpdate() {
+    renderNextFrameColor();
+    renderNextTitleXPos();
 }
 
 void renderDrawWindowFrame() {
@@ -235,7 +259,7 @@ void renderDrawResetButton() {
 
 void renderDrawTitle() {
     SDL_Rect rect = (SDL_Rect) {
-        (signed) (gRenderFieldSize * 3 / 2 + THICKNESS - (CURRENT_SCORE_TEXT_WIDTH / 2)),
+        (signed) gRenderTitleXPos,
         (signed) (gRenderHeight - THICKNESS - 30),
         (signed) CURRENT_SCORE_TEXT_WIDTH,
         (signed) CURRENT_SCORE_TEXT_HEIGHT
