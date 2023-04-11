@@ -6,7 +6,7 @@
 const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048,
     RESET_BUTTON_WIDTH = 80, RESET_BUTTON_HEIGHT = 30, RESET_BUTTON_BORDER_THICKNESS = 2, IGNORED_NUM = 1,
     CURRENT_SCORE_TEXT_WIDTH = 175, CURRENT_SCORE_TEXT_HEIGHT = 30, RED_MASK = 0xff000000, GREEN_MASK = 0x00ff0000,
-    BLUE_MASK = 0x0000ff00;
+    BLUE_MASK = 0x0000ff00, RED_SHIFT = 0x18, GREEN_SHIFT = 0x10, BLUE_SHIFT = 0x08;
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
 
 unsigned* gRenderItems = NULL;
@@ -85,16 +85,18 @@ void renderClearSpecialItemMarks() {
 }
 
 void renderNextFrameColor() {
-    unsigned current = gRenderFrameColor & RED_MASK;
+    unsigned current = gRenderFrameColor & BLUE_MASK;
 
-    if (current == 0x000000ff) current = 0x00000000;
-    else current += 0x00000001;
+    SDL_Log("0x%08x\n", current);
 
-    gRenderFrameColor |= 0x000000ab << 24;
-    gRenderFrameColor |= 0x000000cd << 16;
-    gRenderFrameColor |= 0x000000ef << 8; // TODO
+    if (current >= 0x0000ff00) current = 0x00000000;
+    else current += 0x00000100;
 
-    SDL_Log("0x%08x 0x%08x 0x%08x 0x%08x\n", gRenderFrameColor, (gRenderFrameColor & RED_MASK) >> 24, (gRenderFrameColor & GREEN_MASK) >> 16, (gRenderFrameColor & BLUE_MASK) >> 8);
+    gRenderFrameColor |= current << RED_SHIFT;
+    gRenderFrameColor |= current << GREEN_SHIFT;
+    gRenderFrameColor |= current << BLUE_SHIFT; // TODO: make it work
+
+    SDL_Log("0x%08x 0x%08x 0x%08x 0x%08x\n", gRenderFrameColor, (gRenderFrameColor & RED_MASK) >> RED_SHIFT, (gRenderFrameColor & GREEN_MASK) >> GREEN_SHIFT, (gRenderFrameColor & BLUE_MASK) >> BLUE_SHIFT);
 }
 
 void renderDrawWindowFrame() {
@@ -106,9 +108,9 @@ void renderDrawWindowFrame() {
 
     SDL_SetRenderDrawColor(
         gRenderRenderer,
-        gRenderFrameColor & RED_MASK,
-        gRenderFrameColor & GREEN_MASK,
-        gRenderFrameColor & BLUE_MASK,
+        (gRenderFrameColor & RED_MASK) >> RED_SHIFT,
+        (gRenderFrameColor & GREEN_MASK) >> GREEN_SHIFT,
+        (gRenderFrameColor & BLUE_MASK) >> BLUE_SHIFT,
         255
     );
 
