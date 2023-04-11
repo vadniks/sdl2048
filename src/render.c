@@ -46,7 +46,7 @@ void renderInit(SDL_Renderer* renderer) {
     gRenderTextColor->a = 255;
 
     gRenderResetButtonGeometry = SDL_malloc(sizeof *gRenderResetButtonGeometry);
-    gRenderResetButtonGeometry->x = (signed) ((gRenderFieldSize + THICKNESS) / RESET_BUTTON_BORDER_THICKNESS);
+    gRenderResetButtonGeometry->x = (signed) ((gRenderFieldSize * 3 / 2 - RESET_BUTTON_WIDTH / 2) / RESET_BUTTON_BORDER_THICKNESS);
     gRenderResetButtonGeometry->y = (signed) (((THICKNESS * 2) + 30) / RESET_BUTTON_BORDER_THICKNESS);
     gRenderResetButtonGeometry->w = (signed) (RESET_BUTTON_WIDTH / RESET_BUTTON_BORDER_THICKNESS);
     gRenderResetButtonGeometry->h = (signed) (RESET_BUTTON_HEIGHT / RESET_BUTTON_BORDER_THICKNESS);
@@ -213,7 +213,7 @@ void renderDrawResetButton() {
 
 void renderDrawTitle() {
     SDL_Rect rect = (SDL_Rect) {
-        (signed) (gRenderFieldSize + THICKNESS + (CURRENT_SCORE_TEXT_WIDTH / 2)),
+        (signed) (gRenderFieldSize * 3 / 2 + THICKNESS - (CURRENT_SCORE_TEXT_WIDTH / 2)),
         (signed) (gRenderHeight - THICKNESS - 30),
         (signed) CURRENT_SCORE_TEXT_WIDTH,
         (signed) CURRENT_SCORE_TEXT_HEIGHT
