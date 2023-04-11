@@ -15,6 +15,7 @@ unsigned gLogicNumsCount = 0;
 unsigned* gLogicNumsShifted = NULL;
 void (*gLogicShowWinDialogFun)(void) = NULL;
 pthread_t* gLogicDialogThread = NULL;
+bool gLogicBlockControls = false;
 
 void logicInitGame();
 
@@ -164,6 +165,7 @@ bool logicFindEndNum() {
 }
 
 void* gLogicShowWindDialogAndExit(__attribute__((unused)) void* _) {
+    gLogicBlockControls = true;
     gLogicShowWinDialogFun();
     *gLogicIsRunning = false;
     return NULL;
@@ -221,6 +223,7 @@ void logicOnResetButtonEventReceived(bool down) {
 }
 
 void logicHandleEvent(SDL_Event* event) {
+    if (gLogicBlockControls) return;
     switch (event->type) {
         case SDL_QUIT:
             *gLogicIsRunning = false;
