@@ -73,27 +73,17 @@ void logicSpawnNew(unsigned iteration) {
     logicSpawnNew(iteration + (successful ? 1 : 0));
 }
 
-void logicWithScoreCount(unsigned (*beforeFillIndex)(unsigned), void (*shift)(void)) {
-//    unsigned before[COLUMNS];
-//    for (unsigned i = 0; i < COLUMNS; before[i] = gLogicNums[beforeFillIndex(i)], i++);
-
+void logicShiftProxy(void (*shift)(void)) {
     SDL_memcpy(gLogicNumsShifted, gLogicNums, gLogicNumsCount);
     shift();
-
-//    for (unsigned i = 0, index; i < COLUMNS; i++) {
-//        index = beforeFillIndex(i);
-//        if ((before[i] + IGNORED_NUM) < gLogicNums[index]) (*gLogicScore)++;
-//    }
 }
-
-unsigned logicBeforeFillIndexUp(unsigned i) { return i * COLUMNS; }
 
 #define NUM_AT(y, x) gLogicNums[(x) * (signed) COLUMNS + (y)]
 #define SHIFTED_AT(y, x) gLogicNumsShifted[(x) * (signed) COLUMNS + (y)]
 
 void logicShiftNumsUp() {
     bool summed = false;
-    unsigned sum = 0, current = 0, shifted = 0;
+    unsigned sum, current, shifted;
 
     for (int y = 0, x, nextY; y < ROWS; y++) {
         for (x = 0; x < COLUMNS; x++) {
@@ -127,8 +117,6 @@ void logicShiftNumsUp() {
     }
 }
 
-unsigned logicBeforeFillIndexLeft(unsigned i) { return i; }
-
 void logicShiftNumsLeft() {
 //    for (int x = (signed) COLUMNS - 1, y; x >= 0 ; x--) {
 //        for (y = 0; y < ROWS; y++) {
@@ -142,10 +130,10 @@ void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
     bool needToSpawnNew = true;
     switch (keycode) {
         case SDLK_w:
-            logicWithScoreCount(&logicBeforeFillIndexUp, &logicShiftNumsUp);
+            logicShiftProxy(&logicShiftNumsUp);
             break;
         case SDLK_a:
-            logicWithScoreCount(&logicBeforeFillIndexLeft, &logicShiftNumsLeft);
+            logicShiftProxy(&logicShiftNumsLeft);
             break;
         case SDLK_s:
 
