@@ -6,9 +6,9 @@
 
 void logicInit(
     bool* isGameRunning,
-    unsigned* rendererFieldItems,
-    unsigned* rendererScore,
-    RendererResetButtonState* rendererResetButtonState
+    unsigned* nums,
+    unsigned* score,
+    RenderResetButtonState* resetButtonState
 );
 void logicHandleEvent(SDL_Event* event);
 void logicClean();

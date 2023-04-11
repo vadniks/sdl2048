@@ -7,15 +7,15 @@
 const unsigned WIDTH = 800;
 const unsigned HEIGHT = WIDTH / 2;
 
-SDL_Window* gWindow = NULL;
-SDL_Renderer* gSdlRenderer = NULL;
-bool gRunning = false;
+SDL_Window* gLifecycleWindow = NULL;
+SDL_Renderer* gLifecycleRenderer = NULL;
+bool gLifecycleRunning = false;
 
 bool gameInit() {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
         return false;
 
-    gWindow = SDL_CreateWindow(
+    gLifecycleWindow = SDL_CreateWindow(
         "2048 clone",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
@@ -23,15 +23,15 @@ bool gameInit() {
         (signed) HEIGHT,
         SDL_WINDOW_SHOWN
     );
-    if (!gWindow) return false;
+    if (!gLifecycleWindow) return false;
 
-    gSdlRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
-    if (!gSdlRenderer) return false;
+    gLifecycleRenderer = SDL_CreateRenderer(gLifecycleWindow, -1, SDL_RENDERER_ACCELERATED);
+    if (!gLifecycleRenderer) return false;
 
-    rendererInit(gSdlRenderer);
-    logicInit(&gRunning, rendererFieldItems(), rendererScore(), rendererResetButtonState());
+    renderInit(gLifecycleRenderer);
+    logicInit(&gLifecycleRunning, renderFieldItems(), renderScore(), renderResetButtonState());
 
-    gRunning = true;
+    gLifecycleRunning = true;
     return true;
 }
 
@@ -45,13 +45,13 @@ void gameUpdate() {
     // TODO: make fixed update (continuous timer task with fixed delay) or remove this at all
 }
 
-void gameRender() { rendererDraw(); }
+void gameRender() { renderDraw(); }
 
 void gameClean() {
-    rendererClean();
+    renderClean();
     logicClean();
-    SDL_DestroyRenderer(gSdlRenderer);
-    SDL_DestroyWindow(gWindow);
+    SDL_DestroyRenderer(gLifecycleRenderer);
+    SDL_DestroyWindow(gLifecycleWindow);
     SDL_Quit();
 }
 
@@ -61,7 +61,7 @@ bool gameLoop() {
         return false;
     }
 
-    while (gRunning) {
+    while (gLifecycleRunning) {
         gameHandleEvents();
         gameUpdate();
         gameRender();

@@ -10,13 +10,13 @@ typedef struct {
     SDL_Rect* geometry;
     int scaleMultiplier;
     bool* isPressed;
-} RendererResetButtonState;
+} RenderResetButtonState;
 
-void rendererInit(SDL_Renderer* renderer);
-unsigned* rendererFieldItems();
-unsigned* rendererScore();
-RendererResetButtonState* rendererResetButtonState();
-void rendererMarkFieldItemSpecial(unsigned index);
-void rendererClearSpecialFieldItemMarks();
-void rendererDraw();
-void rendererClean();
+void renderInit(SDL_Renderer* renderer);
+unsigned* renderFieldItems();
+unsigned* renderScore();
+RenderResetButtonState* renderResetButtonState();
+void renderMarkItemSpecial(unsigned index);
+void renderClearSpecialItemMarks();
+void renderDraw();
+void renderClean();
