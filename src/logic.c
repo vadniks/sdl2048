@@ -165,7 +165,7 @@ void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
             logicShiftNumsVertically(false);
             break;
         case SDLK_d:
-            logicShiftNumsHorizontally(false);
+//            logicShiftNumsHorizontally(false); // TODO: 'free(): invalid next size (fast)' occurs
             break;
         default:
             needToSpawnNew = false;
