@@ -94,7 +94,7 @@ void renderNextFrameColor() {
     gRenderFrameColor |= 0x000000cd << 16;
     gRenderFrameColor |= 0x000000ef << 8; // TODO
 
-    SDL_Log("0x%08x\n", gRenderFrameColor);
+    SDL_Log("0x%08x 0x%08x 0x%08x 0x%08x\n", gRenderFrameColor, (gRenderFrameColor & RED_MASK) >> 24, (gRenderFrameColor & GREEN_MASK) >> 16, (gRenderFrameColor & BLUE_MASK) >> 8);
 }
 
 void renderDrawWindowFrame() {
