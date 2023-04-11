@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "render.h"
 
-const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 5, MAX_NUM_VALUE = 65536,
+const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 4, MAX_NUM_VALUE = 2048,
     RESET_BUTTON_WIDTH = 80, RESET_BUTTON_HEIGHT = 30, RESET_BUTTON_BORDER_THICKNESS = 2, IGNORED_NUM = 1,
     CURRENT_SCORE_TEXT_WIDTH = 175, CURRENT_SCORE_TEXT_HEIGHT = 30;
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
@@ -159,7 +159,7 @@ void renderDrawField() {
 
 void renderDrawCurrentScore() {
     SDL_Rect rect = (SDL_Rect) {
-        (signed) (gRenderFieldSize + THICKNESS),
+        (signed) (gRenderFieldSize * 3 / 2 + THICKNESS - (CURRENT_SCORE_TEXT_WIDTH / 2)),
         (signed) THICKNESS,
         (signed) CURRENT_SCORE_TEXT_WIDTH,
         (signed) CURRENT_SCORE_TEXT_HEIGHT

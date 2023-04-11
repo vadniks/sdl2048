@@ -73,29 +73,26 @@ void logicSpawnNew(unsigned iteration) {
     logicSpawnNew(iteration + (successful ? 1 : 0));
 }
 
-void logicShiftProxy(void (*shift)(void)) {
-    SDL_memcpy(gLogicNumsShifted, gLogicNums, gLogicNumsCount);
-    shift();
-}
+void logicUpdateShiftedNums() { SDL_memcpy(gLogicNumsShifted, gLogicNums, gLogicNumsCount); }
 
 #define NUM_AT(y, x) gLogicNums[(x) * (signed) COLUMNS + (y)]
 #define SHIFTED_AT(y, x) gLogicNumsShifted[(x) * (signed) COLUMNS + (y)]
 
-void logicShiftNumsUp() {
+void logicShiftNums(bool up) {
     bool summed = false;
     unsigned sum, current, shifted;
 
-    for (int y = 0, x, nextY; y < ROWS; y++) {
+    for (int y = up ? 0 : (signed) ROWS, x, nextY; up ? y < ROWS : y >= 0; up ? y++ : y--) {
         for (x = 0; x < COLUMNS; x++) {
 
             current = NUM_AT(y, x);
             if (current == IGNORED_NUM) continue;
 
             sum = current;
-            nextY = y - 1;
+            nextY = up ? y - 1 : y + 1;
             summed = false;
 
-            while (nextY > -1) {
+            while (up ? nextY > -1 : nextY < ROWS) {
                 shifted = SHIFTED_AT(nextY, x);
 
                 if (NUM_AT(nextY, x) == current && (shifted == current || shifted == IGNORED_NUM)) {
@@ -105,38 +102,31 @@ void logicShiftNumsUp() {
                 } else if (NUM_AT(nextY, x) != IGNORED_NUM)
                     break;
 
-                nextY--;
+                up ? nextY-- : nextY++;
             }
 
             NUM_AT(y, x) = IGNORED_NUM;
-            NUM_AT(nextY + 1, x) = sum;
+            NUM_AT(up ? nextY + 1 : nextY - 1, x) = sum;
 
             if (summed) *gLogicScore += sum;
-            SHIFTED_AT(nextY + 1, x) = current;
+            SHIFTED_AT(up ? nextY + 1 : nextY - 1, x) = current;
         }
     }
 }
 
-void logicShiftNumsLeft() {
-//    for (int x = (signed) COLUMNS - 1, y; x >= 0 ; x--) {
-//        for (y = 0; y < ROWS; y++) {
-//            if (x - 1 >= 0) gLogicNums[(x - 1) * COLUMNS + y] *= gLogicNums[x * COLUMNS + y];
-//            if (x > 0) gLogicNums[x * COLUMNS + y] = IGNORED_NUM;
-//        }
-//    }
-}
-
 void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
     bool needToSpawnNew = true;
+    logicUpdateShiftedNums();
+
     switch (keycode) {
         case SDLK_w:
-            logicShiftProxy(&logicShiftNumsUp);
+            logicShiftNums(true);
             break;
         case SDLK_a:
-            logicShiftProxy(&logicShiftNumsLeft);
+
             break;
         case SDLK_s:
-
+            logicShiftNums(false);
             break;
         case SDLK_d:
 
@@ -145,6 +135,7 @@ void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
             needToSpawnNew = false;
             break;
     }
+
     if (needToSpawnNew) logicSpawnNew(0);
 }
 
