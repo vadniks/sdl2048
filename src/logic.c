@@ -82,7 +82,7 @@ void logicShiftNumsVertically(bool up) {
     bool summed = false;
     unsigned sum, current, shifted;
 
-    for (int y = up ? 0 : (signed) ROWS, x, nextY; up ? y < ROWS : y >= 0; up ? y++ : y--) {
+    for (int y = up ? 0 : (signed) ROWS - 1, x, nextY; up ? y < ROWS : y >= 0; up ? y++ : y--) {
         for (x = 0; x < COLUMNS; x++) {
 
             current = NUM_AT(y, x);
@@ -119,7 +119,7 @@ void logicShiftNumsHorizontally(bool left) {
     unsigned sum, current, shifted;
 
     for (int y = 0, x, nextX; y < ROWS; y++) {
-        for (x = left ? 0 : (signed) COLUMNS; left ? x < COLUMNS : x >= 0; left ? x++ : x--) {
+        for (x = left ? 0 : (signed) COLUMNS - 1; left ? x < COLUMNS : x >= 0; left ? x++ : x--) {
 
             current = NUM_AT(y, x);
             if (current == IGNORED_NUM) continue;
@@ -165,7 +165,7 @@ void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
             logicShiftNumsVertically(false);
             break;
         case SDLK_d:
-//            logicShiftNumsHorizontally(false); // TODO: 'free(): invalid next size (fast)' occurs
+            logicShiftNumsHorizontally(false);
             break;
         default:
             needToSpawnNew = false;
