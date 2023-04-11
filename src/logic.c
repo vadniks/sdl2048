@@ -11,6 +11,7 @@ unsigned* gLogicScore = NULL;
 RenderResetButtonState* gLogicResetButtonState = NULL;
 unsigned gLogicMaxSpawnIterations = 0;
 unsigned gLogicNumsCount = 0;
+unsigned* gLogicNumsShifted = NULL;
 
 void logicInitGame();
 
@@ -32,8 +33,11 @@ void logicSpawnNew(unsigned iteration);
 
 void logicInitGame() {
     srand(time(NULL));
+
     gLogicMaxSpawnIterations = ROWS * COLUMNS - 1;
     gLogicNumsCount = ROWS * COLUMNS;
+    gLogicNumsShifted = SDL_calloc(ROWS * COLUMNS, sizeof *gLogicNumsShifted);
+
     logicSpawnNew(0);
 }
 
@@ -70,22 +74,55 @@ void logicSpawnNew(unsigned iteration) {
 }
 
 void logicWithScoreCount(unsigned (*beforeFillIndex)(unsigned), void (*shift)(void)) {
-    unsigned before[COLUMNS];
-    for (unsigned i = 0; i < COLUMNS; before[i] = gLogicNums[beforeFillIndex(i)], i++);
+//    unsigned before[COLUMNS];
+//    for (unsigned i = 0; i < COLUMNS; before[i] = gLogicNums[beforeFillIndex(i)], i++);
+
+    SDL_memcpy(gLogicNumsShifted, gLogicNums, gLogicNumsCount);
     shift();
-    for (unsigned i = 0, index; i < COLUMNS; i++) {
-        index = beforeFillIndex(i);
-        if ((before[i] + IGNORED_NUM) < gLogicNums[index]) (*gLogicScore)++;
-    }
+
+//    for (unsigned i = 0, index; i < COLUMNS; i++) {
+//        index = beforeFillIndex(i);
+//        if ((before[i] + IGNORED_NUM) < gLogicNums[index]) (*gLogicScore)++;
+//    }
 }
 
 unsigned logicBeforeFillIndexUp(unsigned i) { return i * COLUMNS; }
 
+#define NUM_AT(y, x) gLogicNums[(x) * (signed) COLUMNS + (y)]
+#define SHIFTED_AT(y, x) gLogicNumsShifted[(x) * (signed) COLUMNS + (y)]
+
 void logicShiftNumsUp() {
-    for (int y = (signed) ROWS - 1, x; y >= 0; y--) {
+    bool summed = false;
+    unsigned sum = 0, current = 0, shifted = 0;
+
+    for (int y = 0, x, nextY; y < ROWS; y++) {
         for (x = 0; x < COLUMNS; x++) {
-            if (y - 1 >= 0) gLogicNums[x * COLUMNS + y - 1] *= gLogicNums[x * COLUMNS + y];
-            if (y > 0) gLogicNums[x * COLUMNS + y] = IGNORED_NUM;
+
+            current = NUM_AT(y, x);
+            if (current == IGNORED_NUM) continue;
+
+            sum = current;
+            nextY = y - 1;
+            summed = false;
+
+            while (nextY > -1) {
+                shifted = SHIFTED_AT(nextY, x);
+
+                if (NUM_AT(nextY, x) == current && (shifted == current || shifted == IGNORED_NUM)) {
+                    sum += current;
+                    NUM_AT(nextY, x) = IGNORED_NUM;
+                    summed = true;
+                } else if (NUM_AT(nextY, x) != IGNORED_NUM)
+                    break;
+
+                nextY--;
+            }
+
+            NUM_AT(y, x) = IGNORED_NUM;
+            NUM_AT(nextY + 1, x) = sum;
+
+            if (summed) *gLogicScore += sum;
+            SHIFTED_AT(nextY + 1, x) = current;
         }
     }
 }
@@ -93,12 +130,12 @@ void logicShiftNumsUp() {
 unsigned logicBeforeFillIndexLeft(unsigned i) { return i; }
 
 void logicShiftNumsLeft() {
-    for (int x = (signed) COLUMNS - 1, y; x >= 0 ; x--) {
-        for (y = 0; y < ROWS; y++) {
-            if (x - 1 >= 0) gLogicNums[(x - 1) * COLUMNS + y] *= gLogicNums[x * COLUMNS + y];
-            if (x > 0) gLogicNums[x * COLUMNS + y] = IGNORED_NUM;
-        }
-    }
+//    for (int x = (signed) COLUMNS - 1, y; x >= 0 ; x--) {
+//        for (y = 0; y < ROWS; y++) {
+//            if (x - 1 >= 0) gLogicNums[(x - 1) * COLUMNS + y] *= gLogicNums[x * COLUMNS + y];
+//            if (x > 0) gLogicNums[x * COLUMNS + y] = IGNORED_NUM;
+//        }
+//    }
 }
 
 void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
@@ -167,4 +204,5 @@ void logicHandleEvent(SDL_Event* event) {
 
 void logicClean() {
     SDL_free(gLogicResetButtonState);
+    SDL_free(gLogicNumsShifted);
 }

@@ -65,6 +65,7 @@ bool gameLoop() {
         gameHandleEvents();
         gameUpdate();
         gameRender();
+        SDL_Delay(1000 / 60);
     }
 
     gameClean();
