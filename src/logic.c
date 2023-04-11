@@ -73,8 +73,8 @@ void logicShiftNumsUp() {
     unsigned before[COLUMNS];
     for (unsigned i = 0; i < COLUMNS; before[i] = gLogicNums[i * COLUMNS], i++);
 
-    for (int y = (signed) ROWS - 1, x, index = 0; y >= 0; y--) {
-        for (x = 0; x < COLUMNS; x++, index++) {
+    for (int y = (signed) ROWS - 1, x; y >= 0; y--) {
+        for (x = 0; x < COLUMNS; x++) {
             if (y - 1 >= 0) gLogicNums[x * COLUMNS + y - 1] *= gLogicNums[x * COLUMNS + y];
             if (y > 0) gLogicNums[x * COLUMNS + y] = IGNORED_NUM;
         }
@@ -86,14 +86,31 @@ void logicShiftNumsUp() {
     }
 }
 
+void logicShiftNumsLeft() {
+    unsigned before[ROWS];
+    for (unsigned j = 0; j < ROWS; before[j] = gLogicNums[j], j++);
+
+    for (int x = (signed) COLUMNS - 1, y; x >= 0 ; x--) {
+        for (y = 0; y < ROWS; y++) {
+            if (x - 1 >= 0) gLogicNums[(x - 1) * COLUMNS + y] *= gLogicNums[x * COLUMNS + y];
+            if (x > 0) gLogicNums[x * COLUMNS + y] = IGNORED_NUM;
+        }
+    }
+
+    for (unsigned j = 0, index; j < ROWS; j++) {
+        index = j;
+        if ((before[j] + IGNORED_NUM) < gLogicNums[index]) (*gLogicScore)++;
+    }
+}
+
 void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
     bool needToSpawnNew = true;
     switch (keycode) {
         case SDLK_w:
-            logicShiftNumsUp();
+//            logicShiftNumsUp();
             break;
         case SDLK_a:
-            // TODO
+            logicShiftNumsLeft();
             break;
         case SDLK_s:
 
