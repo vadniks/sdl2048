@@ -78,7 +78,7 @@ void logicUpdateShiftedNums() { SDL_memcpy(gLogicNumsShifted, gLogicNums, gLogic
 #define NUM_AT(y, x) gLogicNums[(x) * (signed) COLUMNS + (y)]
 #define SHIFTED_AT(y, x) gLogicNumsShifted[(x) * (signed) COLUMNS + (y)]
 
-void logicShiftNums(bool up) {
+void logicShiftNumsVertically(bool up) {
     bool summed = false;
     unsigned sum, current, shifted;
 
@@ -114,22 +114,58 @@ void logicShiftNums(bool up) {
     }
 }
 
+void logicShiftNumsHorizontally(bool left) {
+    bool summed = false;
+    unsigned sum, current, shifted;
+
+    for (int y = 0, x, nextX; y < ROWS; y++) {
+        for (x = left ? 0 : (signed) COLUMNS; left ? x < COLUMNS : x >= 0; left ? x++ : x--) {
+
+            current = NUM_AT(y, x);
+            if (current == IGNORED_NUM) continue;
+
+            sum = current;
+            nextX = left ? x - 1 : x + 1;
+            summed = false;
+
+            while (left ? nextX > -1 : nextX < ROWS) {
+                shifted = SHIFTED_AT(y, nextX);
+
+                if (NUM_AT(y, nextX) == current && (shifted == current || shifted == IGNORED_NUM)) {
+                    sum += current;
+                    NUM_AT(y, nextX) = IGNORED_NUM;
+                    summed = true;
+                } else if (NUM_AT(y, nextX) != IGNORED_NUM)
+                    break;
+
+                left ? nextX-- : nextX++;
+            }
+
+            NUM_AT(y, x) = IGNORED_NUM;
+            NUM_AT(y, left ? nextX + 1 : nextX - 1) = sum;
+
+            if (summed) *gLogicScore += sum;
+            SHIFTED_AT(y, left ? nextX + 1 : nextX - 1) = current;
+        }
+    }
+}
+
 void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
     bool needToSpawnNew = true;
     logicUpdateShiftedNums();
 
     switch (keycode) {
         case SDLK_w:
-            logicShiftNums(true);
+            logicShiftNumsVertically(true);
             break;
         case SDLK_a:
-
+            logicShiftNumsHorizontally(true);
             break;
         case SDLK_s:
-            logicShiftNums(false);
+            logicShiftNumsVertically(false);
             break;
         case SDLK_d:
-
+            logicShiftNumsHorizontally(false);
             break;
         default:
             needToSpawnNew = false;

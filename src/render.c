@@ -71,6 +71,7 @@ RenderResetButtonState* renderResetButtonState() {
 }
 
 void renderMarkItemSpecial(unsigned index) {
+    assert(index <= ROWS * COLUMNS);
     gRenderSpecialItems = SDL_realloc(gRenderSpecialItems, sizeof(unsigned) * ++gRenderSpecialItemsSize);
     gRenderSpecialItems[gRenderSpecialItemsSize - 1] = index;
 }
