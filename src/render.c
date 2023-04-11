@@ -86,13 +86,10 @@ void renderClearSpecialItemMarks() {
 }
 
 void renderNextFrameColor() {
-    const unsigned r = (gRenderFrameColor & RED_MASK) >> RED_SHIFT, x = 0x000000f1, m = 0x00000010;
+    const unsigned r = (gRenderFrameColor & RED_MASK) >> RED_SHIFT, x = 0x000000ff, m = 0x0000005;
 
-    SDL_Log("0x%08x\n", r);
-    if (!gRenderFrameColorChangeDirection && r == x || gRenderFrameColorChangeDirection && r <= m) {
-        SDL_Log("a\n");
+    if (!gRenderFrameColorChangeDirection && r == x || gRenderFrameColorChangeDirection && r <= m)
         gRenderFrameColorChangeDirection = !gRenderFrameColorChangeDirection;
-    }
 
     if (!gRenderFrameColorChangeDirection) {
         gRenderFrameColor |= (r + m) << RED_SHIFT;
