@@ -8,110 +8,110 @@ const unsigned ROWS = 4, COLUMNS = ROWS, THICKNESS = 4, MAX_NUM_LENGTH = 4, MAX_
     CURRENT_SCORE_TEXT_WIDTH = 175, CURRENT_SCORE_TEXT_HEIGHT = 30, END_NUM = 2048;
 const char* FONT_PATH = "assets/Roboto-Regular.ttf";
 
-unsigned* gRenderItems = NULL;
+static unsigned* gItems = NULL;
 
-unsigned gRenderWidth = 0, gRenderHeight = 0, gRenderFieldSize = 0, gRenderTileSize = 0, gRenderFieldStart = 0,
-    gRenderFieldEnd = 0;
+static unsigned gWidth = 0, gHeight = 0, gFieldSize = 0, gTileSize = 0, gFieldStart = 0,
+    gFieldEnd = 0;
 
-TTF_Font* gRenderFont = NULL;
-SDL_Color* gRenderTextColor = NULL;
-SDL_Renderer* gRenderRenderer = NULL;
-unsigned gRenderScore = 0;
-bool gRenderIsResetButtonPressed = false;
-SDL_Rect* gRenderResetButtonGeometry = NULL;
-SDL_Color* gRenderSpecialItemColor = NULL;
-unsigned* gRenderSpecialItems = NULL;
-unsigned gRenderSpecialItemsSize = 0;
-unsigned char gRenderFrameColorComponent = 0;
-bool gRenderFrameColorChangeDirection = false;
-unsigned gRenderTitleXPos = 0;
-bool gRenderTitleMovementDirection = false;
-unsigned gRenderTitleOriginalXPos = 0;
-unsigned gRenderTileOffset = 0;
+static TTF_Font* gFont = NULL;
+static SDL_Color* gTextColor = NULL;
+static SDL_Renderer* gRenderer = NULL;
+static unsigned gScore = 0;
+static bool gIsResetButtonPressed = false;
+static SDL_Rect* gResetButtonGeometry = NULL;
+static SDL_Color* gSpecialItemColor = NULL;
+static unsigned* gSpecialItems = NULL;
+static unsigned gSpecialItemsSize = 0;
+static unsigned char gFrameColorComponent = 0;
+static bool gFrameColorChangeDirection = false;
+static unsigned gTitleXPos = 0;
+static bool gTitleMovementDirection = false;
+static unsigned gTitleOriginalXPos = 0;
+static unsigned gTileOffset = 0;
 
 void renderSetDrawColorToDefault()
-{ SDL_SetRenderDrawColor(gRenderRenderer, 49, 54, 59, 255); }
+{ SDL_SetRenderDrawColor(gRenderer, 49, 54, 59, 255); }
 
 void renderInit(SDL_Renderer* renderer) {
     assert(ROWS == COLUMNS);
-    gRenderRenderer = renderer;
-    SDL_GetRendererOutputSize(gRenderRenderer, (signed*) &gRenderWidth, (signed*) &gRenderHeight);
+    gRenderer = renderer;
+    SDL_GetRendererOutputSize(gRenderer, (signed*) &gWidth, (signed*) &gHeight);
 
-    gRenderFieldSize = gRenderWidth / 2;
-    gRenderTileSize = (gRenderFieldSize - (ROWS + 1) * THICKNESS) / ROWS;
-    gRenderFieldStart = (signed) THICKNESS / 2;
-    gRenderFieldEnd = (signed) (ROWS * gRenderTileSize / THICKNESS + gRenderFieldStart);
+    gFieldSize = gWidth / 2;
+    gTileSize = (gFieldSize - (ROWS + 1) * THICKNESS) / ROWS;
+    gFieldStart = (signed) THICKNESS / 2;
+    gFieldEnd = (signed) (ROWS * gTileSize / THICKNESS + gFieldStart);
 
-    gRenderItems = SDL_calloc(ROWS * COLUMNS, sizeof(unsigned));
-    for (unsigned i = 0; i < ROWS * COLUMNS; gRenderItems[i++] = IGNORED_NUM);
+    gItems = SDL_calloc(ROWS * COLUMNS, sizeof(unsigned));
+    for (unsigned i = 0; i < ROWS * COLUMNS; gItems[i++] = IGNORED_NUM);
 
     TTF_Init();
-    gRenderFont = TTF_OpenFont(FONT_PATH, 100);
+    gFont = TTF_OpenFont(FONT_PATH, 100);
 
-    gRenderTextColor = SDL_calloc(1, sizeof *gRenderTextColor);
-    gRenderTextColor->a = 255;
+    gTextColor = SDL_calloc(1, sizeof *gTextColor);
+    gTextColor->a = 255;
 
-    gRenderResetButtonGeometry = SDL_malloc(sizeof *gRenderResetButtonGeometry);
-    gRenderResetButtonGeometry->x = (signed) ((gRenderFieldSize * 3 / 2 - RESET_BUTTON_WIDTH / 2) / RESET_BUTTON_BORDER_THICKNESS);
-    gRenderResetButtonGeometry->y = (signed) (((THICKNESS * 2) + 30) / RESET_BUTTON_BORDER_THICKNESS);
-    gRenderResetButtonGeometry->w = (signed) (RESET_BUTTON_WIDTH / RESET_BUTTON_BORDER_THICKNESS);
-    gRenderResetButtonGeometry->h = (signed) (RESET_BUTTON_HEIGHT / RESET_BUTTON_BORDER_THICKNESS);
+    gResetButtonGeometry = SDL_malloc(sizeof *gResetButtonGeometry);
+    gResetButtonGeometry->x = (signed) ((gFieldSize * 3 / 2 - RESET_BUTTON_WIDTH / 2) / RESET_BUTTON_BORDER_THICKNESS);
+    gResetButtonGeometry->y = (signed) (((THICKNESS * 2) + 30) / RESET_BUTTON_BORDER_THICKNESS);
+    gResetButtonGeometry->w = (signed) (RESET_BUTTON_WIDTH / RESET_BUTTON_BORDER_THICKNESS);
+    gResetButtonGeometry->h = (signed) (RESET_BUTTON_HEIGHT / RESET_BUTTON_BORDER_THICKNESS);
 
-    gRenderSpecialItemColor = SDL_malloc(sizeof *gRenderSpecialItemColor);
-    gRenderSpecialItemColor->r = 30;
-    gRenderSpecialItemColor->g = 30;
-    gRenderSpecialItemColor->b = 30;
-    gRenderSpecialItemColor->a = 255;
+    gSpecialItemColor = SDL_malloc(sizeof *gSpecialItemColor);
+    gSpecialItemColor->r = 30;
+    gSpecialItemColor->g = 30;
+    gSpecialItemColor->b = 30;
+    gSpecialItemColor->a = 255;
 
-    gRenderTitleOriginalXPos = gRenderFieldSize * 3 / 2 + THICKNESS - (CURRENT_SCORE_TEXT_WIDTH / 2);
-    gRenderTitleXPos = gRenderTitleOriginalXPos;
-    gRenderTileOffset = CURRENT_SCORE_TEXT_WIDTH / 2;
+    gTitleOriginalXPos = gFieldSize * 3 / 2 + THICKNESS - (CURRENT_SCORE_TEXT_WIDTH / 2);
+    gTitleXPos = gTitleOriginalXPos;
+    gTileOffset = CURRENT_SCORE_TEXT_WIDTH / 2;
 }
 
-unsigned* renderFieldItems() { return gRenderItems; }
+unsigned* renderFieldItems() { return gItems; }
 
-unsigned* renderScore() { return &gRenderScore; }
+unsigned* renderScore() { return &gScore; }
 
 RenderResetButtonState* renderResetButtonState() {
     RenderResetButtonState* state = SDL_malloc(sizeof *state);
-    state->geometry = gRenderResetButtonGeometry;
+    state->geometry = gResetButtonGeometry;
     state->scaleMultiplier = (signed) RESET_BUTTON_BORDER_THICKNESS;
-    state->isPressed = &gRenderIsResetButtonPressed;
+    state->isPressed = &gIsResetButtonPressed;
     return state;
 }
 
 void renderMarkItemSpecial(unsigned index) {
     assert(index <= ROWS * COLUMNS);
-    gRenderSpecialItems = SDL_realloc(gRenderSpecialItems, sizeof(unsigned) * ++gRenderSpecialItemsSize);
-    gRenderSpecialItems[gRenderSpecialItemsSize - 1] = index;
+    gSpecialItems = SDL_realloc(gSpecialItems, sizeof(unsigned) * ++gSpecialItemsSize);
+    gSpecialItems[gSpecialItemsSize - 1] = index;
 }
 
 void renderClearSpecialItemMarks() {
-    SDL_free(gRenderSpecialItems);
-    gRenderSpecialItems = NULL;
-    gRenderSpecialItemsSize = 0;
+    SDL_free(gSpecialItems);
+    gSpecialItems = NULL;
+    gSpecialItemsSize = 0;
 }
 
 void renderNextFrameColor() {
-    if (!gRenderFrameColorChangeDirection && gRenderFrameColorComponent == 255
-        || gRenderFrameColorChangeDirection && gRenderFrameColorComponent == 0)
-        gRenderFrameColorChangeDirection = !gRenderFrameColorChangeDirection;
+    if (!gFrameColorChangeDirection && gFrameColorComponent == 255
+        || gFrameColorChangeDirection && gFrameColorComponent == 0)
+        gFrameColorChangeDirection = !gFrameColorChangeDirection;
 
-    if (!gRenderFrameColorChangeDirection)
-        gRenderFrameColorComponent += 5;
+    if (!gFrameColorChangeDirection)
+        gFrameColorComponent += 5;
     else
-        gRenderFrameColorComponent -= 5;
+        gFrameColorComponent -= 5;
 }
 
 void renderNextTitleXPos() {
-    if (!gRenderTitleMovementDirection && gRenderTitleXPos == gRenderTitleOriginalXPos - gRenderTileOffset
-        || gRenderTitleMovementDirection && gRenderTitleXPos == gRenderTitleOriginalXPos + gRenderTileOffset)
-        gRenderTitleMovementDirection = !gRenderTitleMovementDirection;
+    if (!gTitleMovementDirection && gTitleXPos == gTitleOriginalXPos - gTileOffset
+        || gTitleMovementDirection && gTitleXPos == gTitleOriginalXPos + gTileOffset)
+        gTitleMovementDirection = !gTitleMovementDirection;
 
-    if (!gRenderTitleMovementDirection)
-        gRenderTitleXPos--;
+    if (!gTitleMovementDirection)
+        gTitleXPos--;
     else
-        gRenderTitleXPos++;
+        gTitleXPos++;
 }
 
 void renderOnUpdate() {
@@ -122,26 +122,26 @@ void renderOnUpdate() {
 void renderDrawWindowFrame() {
     SDL_Rect rect = (SDL_Rect) {
         0, 0,
-        (signed) (gRenderWidth / THICKNESS),
-        (signed) (gRenderHeight / THICKNESS)
+        (signed) (gWidth / THICKNESS),
+        (signed) (gHeight / THICKNESS)
     };
 
     SDL_SetRenderDrawColor(
-        gRenderRenderer,
-        gRenderFrameColorComponent,
-        gRenderFrameColorComponent,
-        gRenderFrameColorComponent,
+        gRenderer,
+        gFrameColorComponent,
+        gFrameColorComponent,
+        gFrameColorComponent,
         255
     );
 
-    SDL_RenderSetScale(gRenderRenderer, (float) THICKNESS, (float) THICKNESS);
-    SDL_RenderDrawRect(gRenderRenderer, &rect);
-    SDL_SetRenderDrawColor(gRenderRenderer, 0, 0, 0, 255);
+    SDL_RenderSetScale(gRenderer, (float) THICKNESS, (float) THICKNESS);
+    SDL_RenderDrawRect(gRenderer, &rect);
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
 }
 
 SDL_Texture* renderMakeTextTexture(char* text, SDL_Color* color) {
-    SDL_Surface* surface = TTF_RenderText_Solid(gRenderFont, text, *color);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderRenderer, surface);
+    SDL_Surface* surface = TTF_RenderText_Solid(gFont, text, *color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
     SDL_FreeSurface(surface);
     return texture;
 }
@@ -157,70 +157,70 @@ void renderDrawNum(SDL_Rect* rect, int num, SDL_Color* color) {
 
     char* text = renderNumToText(num);
     SDL_Texture* texture = renderMakeTextTexture(text, color);
-    SDL_RenderCopy(gRenderRenderer, texture, NULL, rect);
+    SDL_RenderCopy(gRenderer, texture, NULL, rect);
 
     SDL_DestroyTexture(texture);
     SDL_free(text);
 }
 
 int renderCalcFieldNumCoord(unsigned logicalCoord)
-{ return (signed) ((logicalCoord * gRenderTileSize / THICKNESS + gRenderFieldStart) * THICKNESS); }
+{ return (signed) ((logicalCoord * gTileSize / THICKNESS + gFieldStart) * THICKNESS); }
 
 bool renderIsSpecialFieldItem(unsigned index) {
-    for (unsigned i = 0; i < gRenderSpecialItemsSize; i++)
-        if (gRenderSpecialItems[i] == index)
+    for (unsigned i = 0; i < gSpecialItemsSize; i++)
+        if (gSpecialItems[i] == index)
             return true;
     return false;
 }
 
 void renderDrawField() {
-    SDL_SetRenderDrawColor(gRenderRenderer, 0, 0, 0, 255);
-    SDL_RenderSetScale(gRenderRenderer, (float) THICKNESS, (float) THICKNESS);
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+    SDL_RenderSetScale(gRenderer, (float) THICKNESS, (float) THICKNESS);
 
     for (unsigned i = 0; i < ROWS + 1; i++) {
-        const int each = (signed) (i * gRenderTileSize / THICKNESS + gRenderFieldStart);
-        SDL_RenderDrawLine(gRenderRenderer, each, (signed) gRenderFieldStart, each, (signed) gRenderFieldEnd);
-        SDL_RenderDrawLine(gRenderRenderer, (signed) gRenderFieldStart, each, (signed) gRenderFieldEnd, each);
+        const int each = (signed) (i * gTileSize / THICKNESS + gFieldStart);
+        SDL_RenderDrawLine(gRenderer, each, (signed) gFieldStart, each, (signed) gFieldEnd);
+        SDL_RenderDrawLine(gRenderer, (signed) gFieldStart, each, (signed) gFieldEnd, each);
     }
 
     SDL_Rect rect = (SDL_Rect) {
         0, 0,
-        (signed) (gRenderTileSize - THICKNESS * 2),
-        (signed) (gRenderTileSize - THICKNESS * 2)
+        (signed) (gTileSize - THICKNESS * 2),
+        (signed) (gTileSize - THICKNESS * 2)
     };
-    SDL_RenderSetScale(gRenderRenderer, 1, 1);
+    SDL_RenderSetScale(gRenderer, 1, 1);
 
     for (unsigned row = 0, column, index, item; row < ROWS; row++) {
         for (column = 0; column < COLUMNS; column++) {
             index = row * COLUMNS + column;
-            item = gRenderItems[index];
+            item = gItems[index];
             if (item == IGNORED_NUM) continue;
 
             rect.x = renderCalcFieldNumCoord(row) + (signed) THICKNESS;
             rect.y = renderCalcFieldNumCoord(column);
-            renderDrawNum(&rect, (signed) item, renderIsSpecialFieldItem(index) ? gRenderSpecialItemColor : gRenderTextColor);
+            renderDrawNum(&rect, (signed) item, renderIsSpecialFieldItem(index) ? gSpecialItemColor : gTextColor);
         }
     }
 }
 
 void renderDrawCurrentScore() {
     SDL_Rect rect = (SDL_Rect) {
-        (signed) (gRenderFieldSize * 3 / 2 + THICKNESS - (CURRENT_SCORE_TEXT_WIDTH / 2)),
+        (signed) (gFieldSize * 3 / 2 + THICKNESS - (CURRENT_SCORE_TEXT_WIDTH / 2)),
         (signed) THICKNESS,
         (signed) CURRENT_SCORE_TEXT_WIDTH,
         (signed) CURRENT_SCORE_TEXT_HEIGHT
     };
 
     const unsigned scoreMsgLength = 15, maxLength = scoreMsgLength + MAX_NUM_LENGTH + 1;
-    char* scoreText = renderNumToText((signed) gRenderScore);
+    char* scoreText = renderNumToText((signed) gScore);
     char* buffer = SDL_calloc(sizeof(char), maxLength);
 
     SDL_strlcat(buffer, "Current score: ", maxLength);
     SDL_strlcat(buffer, scoreText, maxLength);
 
-    SDL_Texture* texture = renderMakeTextTexture(buffer, gRenderTextColor);
-    SDL_RenderSetScale(gRenderRenderer, 1, 1);
-    SDL_RenderCopy(gRenderRenderer, texture, NULL, &rect);
+    SDL_Texture* texture = renderMakeTextTexture(buffer, gTextColor);
+    SDL_RenderSetScale(gRenderer, 1, 1);
+    SDL_RenderCopy(gRenderer, texture, NULL, &rect);
 
     SDL_free(scoreText);
     SDL_free(buffer);
@@ -228,12 +228,12 @@ void renderDrawCurrentScore() {
 }
 
 void renderDrawResetButton() {
-    SDL_SetRenderDrawColor(gRenderRenderer, 0, 0, 0, 255);
-    SDL_RenderSetScale(gRenderRenderer, (float) RESET_BUTTON_BORDER_THICKNESS, (float) RESET_BUTTON_BORDER_THICKNESS);
-    SDL_RenderDrawRect(gRenderRenderer, gRenderResetButtonGeometry);
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+    SDL_RenderSetScale(gRenderer, (float) RESET_BUTTON_BORDER_THICKNESS, (float) RESET_BUTTON_BORDER_THICKNESS);
+    SDL_RenderDrawRect(gRenderer, gResetButtonGeometry);
 
     SDL_Rect* rect = SDL_malloc(sizeof *rect);
-    SDL_memcpy(rect, gRenderResetButtonGeometry, sizeof *rect);
+    SDL_memcpy(rect, gResetButtonGeometry, sizeof *rect);
 
 #   define CHANGE_VALUE(x, y) rect->x = rect->x * (signed) RESET_BUTTON_BORDER_THICKNESS + (y);
     CHANGE_VALUE(x, 2)
@@ -242,37 +242,37 @@ void renderDrawResetButton() {
     CHANGE_VALUE(h, -4)
 #   undef CHANGE_VALUE
 
-#   define SET_COLOR(r, g, b) SDL_SetRenderDrawColor(gRenderRenderer, r, g, b, 255)
-    gRenderIsResetButtonPressed
+#   define SET_COLOR(r, g, b) SDL_SetRenderDrawColor(gRenderer, r, g, b, 255)
+    gIsResetButtonPressed
         ? SET_COLOR(49, 54, 59)
         : SET_COLOR(56, 62, 73);
 #   undef SET_COLOR
 
-    SDL_RenderSetScale(gRenderRenderer, 1, 1);
-    SDL_RenderFillRect(gRenderRenderer, rect);
+    SDL_RenderSetScale(gRenderer, 1, 1);
+    SDL_RenderFillRect(gRenderer, rect);
 
-    SDL_Texture* texture = renderMakeTextTexture("Reset", gRenderTextColor);
-    SDL_RenderCopy(gRenderRenderer, texture, NULL, rect);
+    SDL_Texture* texture = renderMakeTextTexture("Reset", gTextColor);
+    SDL_RenderCopy(gRenderer, texture, NULL, rect);
     SDL_DestroyTexture(texture);
     SDL_free(rect);
 }
 
 void renderDrawTitle() {
     SDL_Rect rect = (SDL_Rect) {
-        (signed) gRenderTitleXPos,
-        (signed) (gRenderHeight - THICKNESS - 30),
+        (signed) gTitleXPos,
+        (signed) (gHeight - THICKNESS - 30),
         (signed) CURRENT_SCORE_TEXT_WIDTH,
         (signed) CURRENT_SCORE_TEXT_HEIGHT
     };
 
-    SDL_Texture* texture = renderMakeTextTexture("2048 clone", gRenderTextColor);
-    SDL_RenderCopy(gRenderRenderer, texture, NULL, &rect);
+    SDL_Texture* texture = renderMakeTextTexture("2048 clone", gTextColor);
+    SDL_RenderCopy(gRenderer, texture, NULL, &rect);
     SDL_DestroyTexture(texture);
 }
 
 void renderDraw() {
     renderSetDrawColorToDefault();
-    SDL_RenderClear(gRenderRenderer);
+    SDL_RenderClear(gRenderer);
 
     renderDrawWindowFrame();
     renderDrawField();
@@ -280,15 +280,15 @@ void renderDraw() {
     renderDrawResetButton();
     renderDrawTitle();
 
-    SDL_RenderPresent(gRenderRenderer);
+    SDL_RenderPresent(gRenderer);
 }
 
 void renderClean() {
-    SDL_free(gRenderItems);
-    TTF_CloseFont(gRenderFont);
-    SDL_free(gRenderTextColor);
-    SDL_free(gRenderResetButtonGeometry);
-    SDL_free(gRenderSpecialItemColor);
-    SDL_free(gRenderSpecialItems);
+    SDL_free(gItems);
+    TTF_CloseFont(gFont);
+    SDL_free(gTextColor);
+    SDL_free(gResetButtonGeometry);
+    SDL_free(gSpecialItemColor);
+    SDL_free(gSpecialItems);
     TTF_Quit();
 }

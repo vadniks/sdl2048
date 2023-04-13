@@ -6,10 +6,10 @@
 
 const unsigned WIDTH = 800, HEIGHT = WIDTH / 2, UPDATE_DELAY = 1000 / 20;
 
-SDL_Window* gLifecycleWindow = NULL;
-SDL_Renderer* gLifecycleRenderer = NULL;
-bool gLifecycleRunning = false;
-SDL_TimerID gLifecycleUpdateTimerId = 0;
+static SDL_Window* gWindow = NULL;
+static SDL_Renderer* gRenderer = NULL;
+static bool gRunning = false;
+static SDL_TimerID gUpdateTimerId = 0;
 
 unsigned lifecycleUpdate(unsigned, void*);
 void lifecycleShowWinDialog();
@@ -18,7 +18,7 @@ bool lifecycleInit() {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER))
         return false;
 
-    gLifecycleWindow = SDL_CreateWindow(
+    gWindow = SDL_CreateWindow(
         "2048 clone",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
@@ -26,30 +26,30 @@ bool lifecycleInit() {
         (signed) HEIGHT,
         SDL_WINDOW_SHOWN
     );
-    if (!gLifecycleWindow) return false;
+    if (!gWindow) return false;
 
-    gLifecycleRenderer = SDL_CreateRenderer(gLifecycleWindow, -1, SDL_RENDERER_ACCELERATED);
-    if (!gLifecycleRenderer) return false;
+    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+    if (!gRenderer) return false;
 
-    renderInit(gLifecycleRenderer);
-    logicInit(&gLifecycleRunning, renderFieldItems(), renderScore(), renderResetButtonState(), &lifecycleShowWinDialog);
+    renderInit(gRenderer);
+    logicInit(&gRunning, renderFieldItems(), renderScore(), renderResetButtonState(), &lifecycleShowWinDialog);
 
-    gLifecycleUpdateTimerId = SDL_AddTimer(UPDATE_DELAY, &lifecycleUpdate, NULL);
+    gUpdateTimerId = SDL_AddTimer(UPDATE_DELAY, &lifecycleUpdate, NULL);
 
-    gLifecycleRunning = true;
+    gRunning = true;
     return true;
 }
 
 void lifecycleShowWinDialog() { SDL_ShowSimpleMessageBox(
-    SDL_MESSAGEBOX_INFORMATION,
-    "Info",
-    "You have won!",
-    gLifecycleWindow
+        SDL_MESSAGEBOX_INFORMATION,
+        "Info",
+        "You have won!",
+        gWindow
 ); }
 
 unsigned lifecycleUpdate(__attribute__((unused)) unsigned _, __attribute__((unused)) void* __) { // NOLINT(bugprone-reserved-identifier)
     renderOnUpdate();
-    return gLifecycleRunning ? UPDATE_DELAY : 0;
+    return gRunning ? UPDATE_DELAY : 0;
 }
 
 void lifecycleHandleEvents() {
@@ -61,11 +61,11 @@ void lifecycleHandleEvents() {
 void lifecycleRender() { renderDraw(); }
 
 void lifecycleClean() {
-    SDL_RemoveTimer(gLifecycleUpdateTimerId);
+    SDL_RemoveTimer(gUpdateTimerId);
     renderClean();
     logicClean();
-    SDL_DestroyRenderer(gLifecycleRenderer);
-    SDL_DestroyWindow(gLifecycleWindow);
+    SDL_DestroyRenderer(gRenderer);
+    SDL_DestroyWindow(gWindow);
     SDL_Quit();
 }
 
@@ -75,7 +75,7 @@ bool lifecycleLoop() {
         return false;
     }
 
-    while (gLifecycleRunning) {
+    while (gRunning) {
         lifecycleHandleEvents();
         lifecycleRender();
         SDL_Delay(1000 / 60);

@@ -6,16 +6,16 @@
 
 const unsigned NEW_NUMS_COUNT = 2, NEW_NUM_VALUE = 2;
 
-bool* gLogicIsRunning = NULL;
-unsigned* gLogicNums = NULL;
-unsigned* gLogicScore = NULL;
-RenderResetButtonState* gLogicResetButtonState = NULL;
-unsigned gLogicMaxSpawnIterations = 0;
-unsigned gLogicNumsCount = 0;
-unsigned* gLogicNumsShifted = NULL;
-void (*gLogicShowWinDialogFun)(void) = NULL;
-pthread_t* gLogicDialogThread = NULL;
-bool gLogicBlockControls = false;
+static bool* gIsRunning = NULL;
+static unsigned* gNums = NULL;
+static unsigned* gScore = NULL;
+static RenderResetButtonState* gResetButtonState = NULL;
+static unsigned gMaxSpawnIterations = 0;
+static unsigned gNumsCount = 0;
+static unsigned* gNumsShifted = NULL;
+static void (*gShowWinDialogFun)(void) = NULL;
+static pthread_t* gDialogThread = NULL;
+static bool gBlockControls = false;
 
 void logicInitGame();
 
@@ -26,11 +26,11 @@ void logicInit(
     RenderResetButtonState* resetButtonState,
     void (*showWinDialogFun)(void)
 ) {
-    gLogicIsRunning = isGameRunning;
-    gLogicNums = nums;
-    gLogicScore = score;
-    gLogicResetButtonState = resetButtonState;
-    gLogicShowWinDialogFun = showWinDialogFun;
+    gIsRunning = isGameRunning;
+    gNums = nums;
+    gScore = score;
+    gResetButtonState = resetButtonState;
+    gShowWinDialogFun = showWinDialogFun;
 
     logicInitGame();
 }
@@ -40,23 +40,23 @@ void logicSpawnNew(unsigned iteration);
 void logicInitGame() {
     srand(time(NULL));
 
-    gLogicMaxSpawnIterations = ROWS * COLUMNS - 1;
-    gLogicNumsCount = ROWS * COLUMNS;
-    gLogicNumsShifted = SDL_calloc(ROWS * COLUMNS, sizeof *gLogicNumsShifted);
-    gLogicDialogThread = SDL_malloc(sizeof *gLogicDialogThread);
+    gMaxSpawnIterations = ROWS * COLUMNS - 1;
+    gNumsCount = ROWS * COLUMNS;
+    gNumsShifted = SDL_calloc(ROWS * COLUMNS, sizeof *gNumsShifted);
+    gDialogThread = SDL_malloc(sizeof *gDialogThread);
 
     logicSpawnNew(0);
 }
 
 void logicSpawnNew(unsigned iteration) {
-    if (iteration >= NEW_NUMS_COUNT || iteration > gLogicMaxSpawnIterations) return;
+    if (iteration >= NEW_NUMS_COUNT || iteration > gMaxSpawnIterations) return;
     if (iteration == 0) renderClearSpecialItemMarks();
 
     unsigned* emptyIndexes = NULL;
     unsigned emptyIndexesSize = 0;
 
-    for (unsigned i = 0, x = 0, y = 0; i < gLogicNumsCount; i++, y++) {
-        if (gLogicNums[i] == IGNORED_NUM) {
+    for (unsigned i = 0, x = 0, y = 0; i < gNumsCount; i++, y++) {
+        if (gNums[i] == IGNORED_NUM) {
             emptyIndexes = SDL_realloc(emptyIndexes, sizeof(unsigned) * ++emptyIndexesSize);
             emptyIndexes[emptyIndexesSize - 1] = i;
         }
@@ -70,9 +70,9 @@ void logicSpawnNew(unsigned iteration) {
     const unsigned emptyIndex = emptyIndexes[rand() % emptyIndexesSize];
     bool successful = false;
 
-    if (gLogicNums[emptyIndex] == IGNORED_NUM) {
+    if (gNums[emptyIndex] == IGNORED_NUM) {
         successful = true;
-        gLogicNums[emptyIndex] = NEW_NUM_VALUE;
+        gNums[emptyIndex] = NEW_NUM_VALUE;
         renderMarkItemSpecial(emptyIndex);
     }
 
@@ -80,10 +80,10 @@ void logicSpawnNew(unsigned iteration) {
     logicSpawnNew(iteration + (successful ? 1 : 0));
 }
 
-void logicUpdateShiftedNums() { SDL_memcpy(gLogicNumsShifted, gLogicNums, gLogicNumsCount); }
+void logicUpdateShiftedNums() { SDL_memcpy(gNumsShifted, gNums, gNumsCount); }
 
-#define NUM_AT(y, x) gLogicNums[(x) * (signed) COLUMNS + (y)]
-#define SHIFTED_AT(y, x) gLogicNumsShifted[(x) * (signed) COLUMNS + (y)]
+#define NUM_AT(y, x) gNums[(x) * (signed) COLUMNS + (y)]
+#define SHIFTED_AT(y, x) gNumsShifted[(x) * (signed) COLUMNS + (y)]
 
 void logicShiftNumsVertically(bool up) {
     bool summed = false;
@@ -115,7 +115,7 @@ void logicShiftNumsVertically(bool up) {
             NUM_AT(y, x) = IGNORED_NUM;
             NUM_AT(up ? nextY + 1 : nextY - 1, x) = sum;
 
-            if (summed) *gLogicScore += sum;
+            if (summed) *gScore += sum;
             SHIFTED_AT(up ? nextY + 1 : nextY - 1, x) = current;
         }
     }
@@ -151,23 +151,23 @@ void logicShiftNumsHorizontally(bool left) {
             NUM_AT(y, x) = IGNORED_NUM;
             NUM_AT(y, left ? nextX + 1 : nextX - 1) = sum;
 
-            if (summed) *gLogicScore += sum;
+            if (summed) *gScore += sum;
             SHIFTED_AT(y, left ? nextX + 1 : nextX - 1) = current;
         }
     }
 }
 
 bool logicFindEndNum() {
-    for (unsigned i = 0; i < gLogicNumsCount; i++)
-        if (gLogicNums[i] == END_NUM)
+    for (unsigned i = 0; i < gNumsCount; i++)
+        if (gNums[i] == END_NUM)
             return true;
     return false;
 }
 
 void* gLogicShowWindDialogAndExit(__attribute__((unused)) void* _) {
-    gLogicBlockControls = true;
-    gLogicShowWinDialogFun();
-    *gLogicIsRunning = false;
+    gBlockControls = true;
+    gShowWinDialogFun();
+    *gIsRunning = false;
     return NULL;
 }
 
@@ -194,7 +194,7 @@ void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
     }
 
     if (logicFindEndNum())
-        pthread_create(gLogicDialogThread, NULL, &gLogicShowWindDialogAndExit, NULL);
+        pthread_create(gDialogThread, NULL, &gLogicShowWindDialogAndExit, NULL);
     if (needToSpawnNew) logicSpawnNew(0);
 }
 
@@ -202,11 +202,11 @@ bool logicIsMouseWithinResetButtonArea() {
     int mouseX = -1, mouseY = -1;
     SDL_GetMouseState(&mouseX, &mouseY);
 
-    int scaleMultiplier = gLogicResetButtonState->scaleMultiplier;
+    int scaleMultiplier = gResetButtonState->scaleMultiplier;
     mouseX /= scaleMultiplier;
     mouseY /= scaleMultiplier;
 
-    SDL_Rect* buttonRect = gLogicResetButtonState->geometry;
+    SDL_Rect* buttonRect = gResetButtonState->geometry;
     return mouseX >= buttonRect->x
         && mouseX <= buttonRect->x + buttonRect->w
         && mouseY >= buttonRect->y
@@ -214,19 +214,19 @@ bool logicIsMouseWithinResetButtonArea() {
 }
 
 void logicOnResetButtonEventReceived(bool down) {
-    *(gLogicResetButtonState->isPressed) = down;
+    *(gResetButtonState->isPressed) = down;
     if (!down) return;
 
-    for (unsigned i = 0; i < ROWS * COLUMNS; gLogicNums[i++] = IGNORED_NUM);
-    *gLogicScore = 0;
+    for (unsigned i = 0; i < ROWS * COLUMNS; gNums[i++] = IGNORED_NUM);
+    *gScore = 0;
     logicSpawnNew(0);
 }
 
 void logicHandleEvent(SDL_Event* event) {
-    if (gLogicBlockControls) return;
+    if (gBlockControls) return;
     switch (event->type) {
         case SDL_QUIT:
-            *gLogicIsRunning = false;
+            *gIsRunning = false;
             break;
         case SDL_KEYDOWN:
             logicProcessKeyboardButtonPress(event->key.keysym.sym);
@@ -242,7 +242,7 @@ void logicHandleEvent(SDL_Event* event) {
 }
 
 void logicClean() {
-    SDL_free(gLogicResetButtonState);
-    SDL_free(gLogicNumsShifted);
-    SDL_free(gLogicDialogThread);
+    SDL_free(gResetButtonState);
+    SDL_free(gNumsShifted);
+    SDL_free(gDialogThread);
 }
