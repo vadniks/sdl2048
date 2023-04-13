@@ -29,7 +29,7 @@ static bool gTitleMovementDirection = false;
 static unsigned gTitleOriginalXPos = 0;
 static unsigned gTileOffset = 0;
 
-void renderSetDrawColorToDefault()
+static void setDrawColorToDefault()
 { SDL_SetRenderDrawColor(gRenderer, 49, 54, 59, 255); }
 
 void renderInit(SDL_Renderer* renderer) {
@@ -92,7 +92,7 @@ void renderClearSpecialItemMarks() {
     gSpecialItemsSize = 0;
 }
 
-void renderNextFrameColor() {
+static void nextFrameColor() {
     if (!gFrameColorChangeDirection && gFrameColorComponent == 255
         || gFrameColorChangeDirection && gFrameColorComponent == 0)
         gFrameColorChangeDirection = !gFrameColorChangeDirection;
@@ -103,7 +103,7 @@ void renderNextFrameColor() {
         gFrameColorComponent -= 5;
 }
 
-void renderNextTitleXPos() {
+static void nextTitleXPos() {
     if (!gTitleMovementDirection && gTitleXPos == gTitleOriginalXPos - gTileOffset
         || gTitleMovementDirection && gTitleXPos == gTitleOriginalXPos + gTileOffset)
         gTitleMovementDirection = !gTitleMovementDirection;
@@ -115,11 +115,11 @@ void renderNextTitleXPos() {
 }
 
 void renderOnUpdate() {
-    renderNextFrameColor();
-    renderNextTitleXPos();
+    nextFrameColor();
+    nextTitleXPos();
 }
 
-void renderDrawWindowFrame() {
+static void drawWindowFrame() {
     SDL_Rect rect = (SDL_Rect) {
         0, 0,
         (signed) (gWidth / THICKNESS),
@@ -139,41 +139,41 @@ void renderDrawWindowFrame() {
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
 }
 
-SDL_Texture* renderMakeTextTexture(char* text, SDL_Color* color) {
+static SDL_Texture* makeTextTexture(char* text, SDL_Color* color) {
     SDL_Surface* surface = TTF_RenderText_Solid(gFont, text, *color);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
     SDL_FreeSurface(surface);
     return texture;
 }
 
-char* renderNumToText(int num) {
+static char* numToText(int num) {
     char* text = SDL_calloc(MAX_NUM_LENGTH, sizeof(char));
     SDL_itoa(num, text, 10);
     return text;
 }
 
-void renderDrawNum(SDL_Rect* rect, int num, SDL_Color* color) {
+static void drawNum(SDL_Rect* rect, int num, SDL_Color* color) {
     assert(num >= 0 && num <= MAX_NUM_VALUE);
 
-    char* text = renderNumToText(num);
-    SDL_Texture* texture = renderMakeTextTexture(text, color);
+    char* text = numToText(num);
+    SDL_Texture* texture = makeTextTexture(text, color);
     SDL_RenderCopy(gRenderer, texture, NULL, rect);
 
     SDL_DestroyTexture(texture);
     SDL_free(text);
 }
 
-int renderCalcFieldNumCoord(unsigned logicalCoord)
+static int calcFieldNumCoord(unsigned logicalCoord)
 { return (signed) ((logicalCoord * gTileSize / THICKNESS + gFieldStart) * THICKNESS); }
 
-bool renderIsSpecialFieldItem(unsigned index) {
+static bool isSpecialFieldItem(unsigned index) {
     for (unsigned i = 0; i < gSpecialItemsSize; i++)
         if (gSpecialItems[i] == index)
             return true;
     return false;
 }
 
-void renderDrawField() {
+static void drawField() {
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderSetScale(gRenderer, (float) THICKNESS, (float) THICKNESS);
 
@@ -196,14 +196,14 @@ void renderDrawField() {
             item = gItems[index];
             if (item == IGNORED_NUM) continue;
 
-            rect.x = renderCalcFieldNumCoord(row) + (signed) THICKNESS;
-            rect.y = renderCalcFieldNumCoord(column);
-            renderDrawNum(&rect, (signed) item, renderIsSpecialFieldItem(index) ? gSpecialItemColor : gTextColor);
+            rect.x = calcFieldNumCoord(row) + (signed) THICKNESS;
+            rect.y = calcFieldNumCoord(column);
+            drawNum(&rect, (signed) item, isSpecialFieldItem(index) ? gSpecialItemColor : gTextColor);
         }
     }
 }
 
-void renderDrawCurrentScore() {
+static void drawCurrentScore() {
     SDL_Rect rect = (SDL_Rect) {
         (signed) (gFieldSize * 3 / 2 + THICKNESS - (CURRENT_SCORE_TEXT_WIDTH / 2)),
         (signed) THICKNESS,
@@ -212,13 +212,13 @@ void renderDrawCurrentScore() {
     };
 
     const unsigned scoreMsgLength = 15, maxLength = scoreMsgLength + MAX_NUM_LENGTH + 1;
-    char* scoreText = renderNumToText((signed) gScore);
+    char* scoreText = numToText((signed) gScore);
     char* buffer = SDL_calloc(sizeof(char), maxLength);
 
     SDL_strlcat(buffer, "Current score: ", maxLength);
     SDL_strlcat(buffer, scoreText, maxLength);
 
-    SDL_Texture* texture = renderMakeTextTexture(buffer, gTextColor);
+    SDL_Texture* texture = makeTextTexture(buffer, gTextColor);
     SDL_RenderSetScale(gRenderer, 1, 1);
     SDL_RenderCopy(gRenderer, texture, NULL, &rect);
 
@@ -227,7 +227,7 @@ void renderDrawCurrentScore() {
     SDL_DestroyTexture(texture);
 }
 
-void renderDrawResetButton() {
+static void drawResetButton() {
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
     SDL_RenderSetScale(gRenderer, (float) RESET_BUTTON_BORDER_THICKNESS, (float) RESET_BUTTON_BORDER_THICKNESS);
     SDL_RenderDrawRect(gRenderer, gResetButtonGeometry);
@@ -251,13 +251,13 @@ void renderDrawResetButton() {
     SDL_RenderSetScale(gRenderer, 1, 1);
     SDL_RenderFillRect(gRenderer, rect);
 
-    SDL_Texture* texture = renderMakeTextTexture("Reset", gTextColor);
+    SDL_Texture* texture = makeTextTexture("Reset", gTextColor);
     SDL_RenderCopy(gRenderer, texture, NULL, rect);
     SDL_DestroyTexture(texture);
     SDL_free(rect);
 }
 
-void renderDrawTitle() {
+static void drawTitle() {
     SDL_Rect rect = (SDL_Rect) {
         (signed) gTitleXPos,
         (signed) (gHeight - THICKNESS - 30),
@@ -265,20 +265,20 @@ void renderDrawTitle() {
         (signed) CURRENT_SCORE_TEXT_HEIGHT
     };
 
-    SDL_Texture* texture = renderMakeTextTexture("2048 clone", gTextColor);
+    SDL_Texture* texture = makeTextTexture("2048 clone", gTextColor);
     SDL_RenderCopy(gRenderer, texture, NULL, &rect);
     SDL_DestroyTexture(texture);
 }
 
 void renderDraw() {
-    renderSetDrawColorToDefault();
+    setDrawColorToDefault();
     SDL_RenderClear(gRenderer);
 
-    renderDrawWindowFrame();
-    renderDrawField();
-    renderDrawCurrentScore();
-    renderDrawResetButton();
-    renderDrawTitle();
+    drawWindowFrame();
+    drawField();
+    drawCurrentScore();
+    drawResetButton();
+    drawTitle();
 
     SDL_RenderPresent(gRenderer);
 }

@@ -17,7 +17,7 @@ static void (*gShowWinDialogFun)(void) = NULL;
 static pthread_t* gDialogThread = NULL;
 static bool gBlockControls = false;
 
-void logicInitGame();
+static void initGame();
 
 void logicInit(
     bool* isGameRunning,
@@ -32,12 +32,12 @@ void logicInit(
     gResetButtonState = resetButtonState;
     gShowWinDialogFun = showWinDialogFun;
 
-    logicInitGame();
+    initGame();
 }
 
-void logicSpawnNew(unsigned iteration);
+static void spawnNew(unsigned iteration);
 
-void logicInitGame() {
+static void initGame() {
     srand(time(NULL));
 
     gMaxSpawnIterations = ROWS * COLUMNS - 1;
@@ -45,10 +45,10 @@ void logicInitGame() {
     gNumsShifted = SDL_calloc(ROWS * COLUMNS, sizeof *gNumsShifted);
     gDialogThread = SDL_malloc(sizeof *gDialogThread);
 
-    logicSpawnNew(0);
+    spawnNew(0);
 }
 
-void logicSpawnNew(unsigned iteration) {
+static void spawnNew(unsigned iteration) {
     if (iteration >= NEW_NUMS_COUNT || iteration > gMaxSpawnIterations) return;
     if (iteration == 0) renderClearSpecialItemMarks();
 
@@ -77,15 +77,15 @@ void logicSpawnNew(unsigned iteration) {
     }
 
     SDL_free(emptyIndexes);
-    logicSpawnNew(iteration + (successful ? 1 : 0));
+    spawnNew(iteration + (successful ? 1 : 0));
 }
 
-void logicUpdateShiftedNums() { SDL_memcpy(gNumsShifted, gNums, gNumsCount); }
+static void updateShiftedNums() { SDL_memcpy(gNumsShifted, gNums, gNumsCount); }
 
 #define NUM_AT(y, x) gNums[(x) * (signed) COLUMNS + (y)]
 #define SHIFTED_AT(y, x) gNumsShifted[(x) * (signed) COLUMNS + (y)]
 
-void logicShiftNumsVertically(bool up) {
+static void shiftNumsVertically(bool up) {
     bool summed = false;
     unsigned sum, current, shifted;
 
@@ -121,7 +121,7 @@ void logicShiftNumsVertically(bool up) {
     }
 }
 
-void logicShiftNumsHorizontally(bool left) {
+static void shiftNumsHorizontally(bool left) {
     bool summed = false;
     unsigned sum, current, shifted;
 
@@ -157,48 +157,48 @@ void logicShiftNumsHorizontally(bool left) {
     }
 }
 
-bool logicFindEndNum() {
+static bool findEndNum() {
     for (unsigned i = 0; i < gNumsCount; i++)
         if (gNums[i] == END_NUM)
             return true;
     return false;
 }
 
-void* gLogicShowWindDialogAndExit(__attribute__((unused)) void* _) {
+static void* showWindDialogAndExit(__attribute__((unused)) void* _) {
     gBlockControls = true;
     gShowWinDialogFun();
     *gIsRunning = false;
     return NULL;
 }
 
-void logicProcessKeyboardButtonPress(SDL_Keycode keycode) {
+static void processKeyboardButtonPress(SDL_Keycode keycode) {
     bool needToSpawnNew = true;
-    logicUpdateShiftedNums();
+    updateShiftedNums();
 
     switch (keycode) {
         case SDLK_w:
-            logicShiftNumsVertically(true);
+            shiftNumsVertically(true);
             break;
         case SDLK_a:
-            logicShiftNumsHorizontally(true);
+            shiftNumsHorizontally(true);
             break;
         case SDLK_s:
-            logicShiftNumsVertically(false);
+            shiftNumsVertically(false);
             break;
         case SDLK_d:
-            logicShiftNumsHorizontally(false);
+            shiftNumsHorizontally(false);
             break;
         default:
             needToSpawnNew = false;
             break;
     }
 
-    if (logicFindEndNum())
-        pthread_create(gDialogThread, NULL, &gLogicShowWindDialogAndExit, NULL);
-    if (needToSpawnNew) logicSpawnNew(0);
+    if (findEndNum())
+        pthread_create(gDialogThread, NULL, &showWindDialogAndExit, NULL);
+    if (needToSpawnNew) spawnNew(0);
 }
 
-bool logicIsMouseWithinResetButtonArea() {
+static bool isMouseWithinResetButtonArea() {
     int mouseX = -1, mouseY = -1;
     SDL_GetMouseState(&mouseX, &mouseY);
 
@@ -213,13 +213,13 @@ bool logicIsMouseWithinResetButtonArea() {
         && mouseY <= buttonRect->y + buttonRect->h;
 }
 
-void logicOnResetButtonEventReceived(bool down) {
+static void onResetButtonEventReceived(bool down) {
     *(gResetButtonState->isPressed) = down;
     if (!down) return;
 
     for (unsigned i = 0; i < ROWS * COLUMNS; gNums[i++] = IGNORED_NUM);
     *gScore = 0;
-    logicSpawnNew(0);
+    spawnNew(0);
 }
 
 void logicHandleEvent(SDL_Event* event) {
@@ -229,14 +229,14 @@ void logicHandleEvent(SDL_Event* event) {
             *gIsRunning = false;
             break;
         case SDL_KEYDOWN:
-            logicProcessKeyboardButtonPress(event->key.keysym.sym);
+            processKeyboardButtonPress(event->key.keysym.sym);
             break;
         case SDL_MOUSEBUTTONDOWN:
-            if (logicIsMouseWithinResetButtonArea())
-                logicOnResetButtonEventReceived(true);
+            if (isMouseWithinResetButtonArea())
+                onResetButtonEventReceived(true);
             break;
         case SDL_MOUSEBUTTONUP:
-            logicOnResetButtonEventReceived(false);
+            onResetButtonEventReceived(false);
         default: break;
     }
 }

@@ -11,8 +11,8 @@ static SDL_Renderer* gRenderer = NULL;
 static bool gRunning = false;
 static SDL_TimerID gUpdateTimerId = 0;
 
-unsigned lifecycleUpdate(unsigned, void*);
-void lifecycleShowWinDialog();
+static unsigned update(unsigned, void*);
+static void showWinDialog();
 
 bool lifecycleInit() {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER))
@@ -32,22 +32,22 @@ bool lifecycleInit() {
     if (!gRenderer) return false;
 
     renderInit(gRenderer);
-    logicInit(&gRunning, renderFieldItems(), renderScore(), renderResetButtonState(), &lifecycleShowWinDialog);
+    logicInit(&gRunning, renderFieldItems(), renderScore(), renderResetButtonState(), &showWinDialog);
 
-    gUpdateTimerId = SDL_AddTimer(UPDATE_DELAY, &lifecycleUpdate, NULL);
+    gUpdateTimerId = SDL_AddTimer(UPDATE_DELAY, &update, NULL);
 
     gRunning = true;
     return true;
 }
 
-void lifecycleShowWinDialog() { SDL_ShowSimpleMessageBox(
-        SDL_MESSAGEBOX_INFORMATION,
-        "Info",
-        "You have won!",
-        gWindow
+static void showWinDialog() { SDL_ShowSimpleMessageBox(
+    SDL_MESSAGEBOX_INFORMATION,
+    "Info",
+    "You have won!",
+    gWindow
 ); }
 
-unsigned lifecycleUpdate(__attribute__((unused)) unsigned _, __attribute__((unused)) void* __) { // NOLINT(bugprone-reserved-identifier)
+static unsigned update(__attribute__((unused)) unsigned _, __attribute__((unused)) void* __) { // NOLINT(bugprone-reserved-identifier)
     renderOnUpdate();
     return gRunning ? UPDATE_DELAY : 0;
 }
